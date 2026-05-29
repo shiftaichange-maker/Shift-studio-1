@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shift — AI Change Accelerator</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#07101F}select option{background:#0C1A30}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:rgba(237,232,223,0.15);border-radius:3px}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useMemo}=React;
+const APP_PASSWORD='shift-studio';
+const PROGRAMME_NAME='Your Programme';
+const CONTACT_EMAIL='shiftaichange@gmail.com';
+const SITE_URL='shift-ai-change.co.uk';
+const N='#07101F',N2='#0C1A30',N3='#122040';
+const A='#F5921E',AB='rgba(245,146,30,0.12)';
+const CR='#EDE8DF',CR2='rgba(237,232,223,0.65)',CR3='rgba(237,232,223,0.28)';
+const BD='rgba(237,232,223,0.1)',BD2='rgba(237,232,223,0.2)';
+const GR='#3FCF8E',RD='#FF6B6B',YL='#FFD166',PU='#B47FFF';
+const KEYS={cia:'s-cia',sh:'s-sh',act:'s-act',sess:'s-sess'};
+function load(k,fb){try{const r=localStorage.getItem(k);return r?JSON.parse(r):fb;}catch{return fb;}}
+function persist(k,d){try{localStorage.setItem(k,JSON.stringify(d));}catch(e){}}
+function nid(items,pfx){const n=items.map(i=>parseInt((i.id||'').replace(/\D/g,''))||0);return pfx+'-'+String((n.length?Math.max(...n):0)+1).padStart(3,'0');}
+const S_CIA=[{id:'CIA-001',processArea:'Finance',subProcess:'Accounts Payable',description:'AI-driven invoice matching replaces manual 3-way match',changeType:'Process change',affectedRoles:'AP Clerks, Finance Managers',impactLevel:'High',benefits:'70% reduction in processing time',fuel:'Team keen to reduce repetitive work',friction:'Job security fears',status:'Confirmed'},{id:'CIA-002',processArea:'Operations',subProcess:'Planning & Forecasting',description:'ML forecasting replaces Excel-based demand planning',changeType:'Process change',affectedRoles:'Supply Chain Planners',impactLevel:'Critical',benefits:'Forecast accuracy improves from 68% to 91%',fuel:'Planners frustrated with current tools',friction:'High Excel dependency',status:'Confirmed'}];
+const S_SH=[{id:'SH-001',name:'Programme Leadership',jobTitle:'Director / VP',persona:'Programme Leadership',site:'HQ',population:5,readiness:4,sentiment:'Positive',influence:'High',impactLevel:'High',isAdvocate:true,notes:'Active sponsors'},{id:'SH-002',name:'End Users Finance',jobTitle:'AP Clerks',persona:'End Users',site:'Regional Office',population:40,readiness:2,sentiment:'Resistant',influence:'Low',impactLevel:'Critical',isAdvocate:false,notes:'Job security concerns'}];
+const S_ACT=[{id:'A-001',title:'AI Readiness Briefing',description:'Align leadership on programme scope',ciaLink:'CIA-001',audience:'Programme Leadership',channel:'Town Hall',owner:'Programme Director',reviewer:'Sponsor',status:'Complete',publishDate:'',impactLevel:'High'},{id:'A-002',title:'End User Comms Finance',description:'Communicate AP process changes',ciaLink:'CIA-001',audience:'End Users',channel:'Workshop',owner:'Change Lead',reviewer:'HR Business Partner',status:'Not started',publishDate:'',impactLevel:'Critical'}];
+const PERSONAS=['Programme Leadership','MC/EO Leadership','Process Owners','Change Advocates','Super Users','End Users'];
+const SUGGEST={'Programme Leadership':{owner:'Programme Director',channel:'Town Hall',reviewer:'Sponsor'},'MC/EO Leadership':{owner:'Programme Director',channel:'Briefing note',reviewer:'Programme Sponsor'},'Process Owners':{owner:'Change Lead',channel:'Workshop',reviewer:'Process Lead'},'Change Advocates':{owner:'Comms Manager',channel:'Teams channel',reviewer:'Change Lead'},'Super Users':{owner:'Training Lead',channel:'In-person training',reviewer:'Change Lead'},'End Users':{owner:'Comms Manager',channel:'Email',reviewer:'HR Business Partner'}};
+const ST_MAP={Complete:[GR,'rgba(63,207,142,0.13)'],Confirmed:[GR,'rgba(63,207,142,0.13)'],'In progress':[A,'rgba(245,146,30,0.15)'],Draft:[YL,'rgba(255,209,102,0.13)'],'Not started':[RD,'rgba(255,107,107,0.12)'],'On hold':[CR2,'rgba(237,232,223,0.08)'],Closed:[CR2,'rgba(237,232,223,0.08)']};
+const IM_MAP={Critical:[A,'rgba(245,146,30,0.15)'],High:[YL,'rgba(255,209,102,0.12)'],Medium:[GR,'rgba(63,207,142,0.12)'],Low:[CR2,'rgba(237,232,223,0.08)']};
+const SN_MAP={Positive:[GR,'rgba(63,207,142,0.12)'],Neutral:[YL,'rgba(255,209,102,0.1)'],Resistant:[RD,'rgba(255,107,107,0.12)'],Unknown:[CR2,'rgba(237,232,223,0.08)']};
+
+async function readFileAsText(file){return new Promise((res,rej)=>{const ext=file.name.split('.').pop().toLowerCase();if(ext==='docx'){const r=new FileReader();r.onload=async e=>{try{const x=await mammoth.extractRawText({arrayBuffer:e.target.result});res(x.value);}catch(err){rej(err);}};r.readAsArrayBuffer(file);}else if(ext==='xlsx'||ext==='xls'){const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'binary'});let t='';wb.SheetNames.forEach(n=>{const ws=wb.Sheets[n];t+=XLSX.utils.sheet_to_json(ws,{header:1}).map(r=>r.join('\t')).join('\n')+'\n';});res(t);}catch(err){rej(err);}};r.readAsBinaryString(file);}else{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsText(file);}});}
+
+async function extractWithClaude(text,focus){
+  const prompt='You are a change management expert. Analyse this document and extract structured data.\n\nReturn ONLY valid JSON:\n{\n"summary":"2-3 sentence summary",\n"cia_entries":[{"processArea":"","subProcess":"","description":"","changeType":"Process change","affectedRoles":"","impactLevel":"Medium","benefits":"","fuel":"","friction":"","status":"Draft"}],\n"stakeholders":[{"name":"","jobTitle":"","persona":"End Users","site":"","population":1,"readiness":3,"sentiment":"Unknown","influence":"Medium","impactLevel":"Medium","isAdvocate":false,"notes":""}],\n"activities":[{"title":"","description":"","audience":"End Users","channel":"","owner":"","reviewer":"","status":"Not started","publishDate":"","impactLevel":"Medium","ciaLink":""}]\n}\n\nOnly include entries with enough info. Return [] if nothing found.\n\nDocument:\n'+text.slice(0,12000);
+  const resp=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
+  if(!resp.ok){const e=await resp.text();throw new Error('Function error '+resp.status+': '+e);}
+  const data=await resp.json();
+  if(data.error)throw new Error(data.error);
+  const raw=data.content.map(c=>c.text||'').join('');
+  const clean=raw.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+function getCol(row,names){const keys=Object.keys(row);for(const name of names){const n=name.toLowerCase().replace(/[\s_\-\/()]/g,'');const m=keys.find(k=>k.toLowerCase().replace(/[\s_\-\/()]/g,'')===n);if(m!==undefined&&String(row[m]).trim())return String(row[m]).trim();}return'';}
+function importXL(file,onRows){const r=new FileReader();r.onload=ev=>{try{const wb=XLSX.read(ev.target.result,{type:'binary'});const ws=wb.Sheets[wb.SheetNames[0]];onRows(XLSX.utils.sheet_to_json(ws,{defval:''}));}catch(e){alert('Could not read file.');}};r.readAsBinaryString(file);}
+function exportXL(data,filename){const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Data');XLSX.writeFile(wb,filename);}
+function pickFile(accept,onFile){const inp=document.createElement('input');inp.type='file';inp.accept=accept;inp.onchange=e=>{if(e.target.files[0])onFile(e.target.files[0]);};inp.click();}
+const mapCIA=r=>({processArea:getCol(r,['processarea','process area','process']),subProcess:getCol(r,['subprocess','sub process']),description:getCol(r,['description','desc']),changeType:getCol(r,['changetype','type'])||'Process change',affectedRoles:getCol(r,['affectedroles','roles']),impactLevel:getCol(r,['impactlevel','impact'])||'Medium',benefits:getCol(r,['benefits']),fuel:getCol(r,['fuel']),friction:getCol(r,['friction']),status:getCol(r,['status'])||'Draft'});
+const mapSH=r=>({name:getCol(r,['name','stakeholder','group']),jobTitle:getCol(r,['jobtitle','role','title']),persona:getCol(r,['persona','type'])||'End Users',site:getCol(r,['site','location']),population:parseInt(getCol(r,['population','headcount']))||1,readiness:parseInt(getCol(r,['readiness']))||3,sentiment:getCol(r,['sentiment'])||'Unknown',influence:getCol(r,['influence'])||'Medium',impactLevel:getCol(r,['impactlevel','impact'])||'Medium',isAdvocate:['yes','true','y','1'].includes(String(getCol(r,['advocate'])).toLowerCase()),notes:getCol(r,['notes','comments'])});
+const mapAct=r=>({title:getCol(r,['title','activity','name']),description:getCol(r,['description','desc']),ciaLink:getCol(r,['cialink','cia']),audience:getCol(r,['audience']),channel:getCol(r,['channel']),owner:getCol(r,['owner','lead']),reviewer:getCol(r,['reviewer']),status:getCol(r,['status'])||'Not started',publishDate:getCol(r,['publishdate','date']),impactLevel:getCol(r,['impactlevel','impact'])||'Medium'});
+
+const card={background:N2,border:'1px solid '+BD,borderRadius:6,padding:'16px 18px'};
+const inp={background:N,border:'1px solid '+BD2,borderRadius:3,padding:'8px 11px',color:CR,fontFamily:'Inter,sans-serif',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none'};
+const th={background:N3,padding:'10px 12px',textAlign:'left',fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.08em',textTransform:'uppercase',color:CR3,fontWeight:400,whiteSpace:'nowrap',borderBottom:'1px solid '+BD};
+const td={padding:'11px 12px',verticalAlign:'middle',borderBottom:'1px solid '+BD,fontSize:12,color:CR};
+const lbl={fontSize:11,fontWeight:600,letterSpacing:'0.05em',textTransform:'uppercase',color:CR2,display:'block',marginBottom:5};
+
+const Pill=({v,map})=>{const[c,bg]=(map||{})[v]||[CR2,'rgba(237,232,223,0.08)'];return React.createElement('span',{style:{display:'inline-block',padding:'2px 9px',borderRadius:10,fontSize:10,fontWeight:500,color:c,background:bg,whiteSpace:'nowrap'}},v||'—');};
+const Bar=({pct,color,height})=>React.createElement('div',{style:{background:'rgba(237,232,223,0.08)',borderRadius:3,overflow:'hidden',height:height||6}},React.createElement('div',{style:{width:Math.min(100,pct)+'%',height:'100%',background:color||A,borderRadius:3}}));
+const Toast=({msg,color})=>msg?React.createElement('div',{style:{position:'fixed',bottom:24,right:24,background:color||GR,color:N,padding:'10px 18px',borderRadius:4,fontSize:12,fontWeight:600,zIndex:999,boxShadow:'0 4px 16px rgba(0,0,0,0.3)',maxWidth:320}},msg):null;
+
+function Btn({children,filled,sm,ai,onClick,style}){return React.createElement('button',{onClick,style:{background:ai?'rgba(180,127,255,0.15)':filled?A:'transparent',color:ai?PU:filled?N:CR2,border:ai?'1px solid rgba(180,127,255,0.3)':filled?'none':'1px solid '+BD2,padding:sm?'5px 11px':'7px 16px',borderRadius:3,fontSize:sm?11:12,fontWeight:filled||ai?600:400,cursor:'pointer',fontFamily:'Inter,sans-serif',...(style||{})}},children);}
+function FInp({value,onChange,placeholder,type,auto}){return React.createElement('input',{type:type||'text',value:value||'',onChange:e=>onChange&&onChange(e.target.value),placeholder,style:{...inp,background:auto?AB:N,borderColor:auto?'rgba(245,146,30,0.25)':BD2,fontStyle:auto?'italic':'normal',color:auto?'#FFB347':CR}});}
+function FSel({value,onChange,options}){return React.createElement('select',{value:String(value||''),onChange:e=>onChange(e.target.value),style:{...inp,cursor:'pointer'}},options.map(o=>React.createElement('option',{key:o.value||o,value:o.value||o},o.label||o)));}
+function FTxt({value,onChange,placeholder,rows}){return React.createElement('textarea',{value:value||'',onChange:e=>onChange(e.target.value),placeholder,rows:rows||3,style:{...inp,resize:'vertical'}});}
+function F({label,auto,children,full}){return React.createElement('div',{style:{display:'flex',flexDirection:'column',gridColumn:full?'1/-1':undefined}},React.createElement('label',{style:lbl},label,auto&&React.createElement('span',{style:{display:'inline-block',fontFamily:'JetBrains Mono,monospace',fontSize:9,background:A,color:N,padding:'1px 5px',borderRadius:2,marginLeft:6,letterSpacing:'0.04em',verticalAlign:'middle'}},'AUTO')),children);}
+function DeleteX({onClick}){return React.createElement('span',{onClick:e=>{e.stopPropagation();onClick();},style:{color:RD,cursor:'pointer',fontSize:13,opacity:0.6,padding:'0 4px'}},'✕');}
+
+function SectionHead({title,sub,onAdd,onExport,onImport,onAI}){
+  return React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:20}},
+    React.createElement('div',null,
+      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:22,fontWeight:500,color:CR,letterSpacing:'-0.01em'}},title),
+      sub&&React.createElement('div',{style:{fontSize:12,color:CR2,marginTop:3}},sub)
+    ),
+    React.createElement('div',{style:{display:'flex',gap:8}},
+      onAI&&React.createElement(Btn,{sm:true,ai:true,onClick:onAI},'✦ AI Extract'),
+      onImport&&React.createElement(Btn,{sm:true,onClick:onImport},'↑ Import Excel'),
+      onExport&&React.createElement(Btn,{sm:true,onClick:onExport},'↓ Export Excel'),
+      onAdd&&React.createElement(Btn,{filled:true,onClick:onAdd},'+ Add new')
+    )
+  );
+}
+
+function FormWrap({title,onClose,children,onSubmit,submitLabel}){
+  return React.createElement('div',{style:{background:N3,border:'1px solid '+BD2,borderRadius:6,padding:24,marginTop:16}},
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}},
+      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:17,fontWeight:500,color:CR}},title),
+      React.createElement('button',{onClick:onClose,style:{background:'transparent',border:'none',color:CR2,cursor:'pointer',fontSize:18}},'✕')
+    ),
+    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}},children),
+    React.createElement('div',{style:{display:'flex',justifyContent:'flex-end',gap:10,marginTop:18}},
+      React.createElement(Btn,{onClick:onClose},'Cancel'),
+      React.createElement(Btn,{filled:true,onClick:onSubmit},submitLabel)
+    )
+  );
+}
+
+function AIPanel({onExtract,setToast,inline}){
+  const[open,setOpen]=useState(!inline);
+  const[text,setText]=useState('');
+  const[loading,setLoading]=useState(false);
+  const[dragOver,setDragOver]=useState(false);
+  const run=async t=>{
+    if(!t.trim())return alert('Paste text or upload a file first.');
+    setLoading(true);
+    try{
+      const r=await extractWithClaude(t,'all');
+      onExtract(r);
+      if(inline){setOpen(false);setText('');}
+      const c=[];
+      if(r.cia_entries?.length)c.push(r.cia_entries.length+' CIA');
+      if(r.stakeholders?.length)c.push(r.stakeholders.length+' stakeholders');
+      if(r.activities?.length)c.push(r.activities.length+' activities');
+      setToast('✦ Extracted: '+(c.join(', ')||'no data found'));
+      setTimeout(()=>setToast(''),4000);
+    }catch(e){
+      setToast('⚠ '+e.message);
+      setTimeout(()=>setToast(''),6000);
+    }
+    setLoading(false);
+  };
+  const handleFile=async f=>{setLoading(true);try{const t=await readFileAsText(f);setText(t);}catch(e){alert('Could not read file.');}setLoading(false);};
+  const handleDrop=e=>{e.preventDefault();setDragOver(false);const f=e.dataTransfer.files[0];if(f)handleFile(f);};
+  if(inline&&!open)return React.createElement(Btn,{sm:true,ai:true,onClick:()=>setOpen(true)},'✦ AI Extract from document');
+  return React.createElement('div',{style:{background:N3,border:'1px solid rgba(180,127,255,0.3)',borderRadius:6,padding:20,marginTop:inline?16:0}},
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
+      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:16,fontWeight:500,color:CR}},'✦ AI Document Extraction'),
+      inline&&React.createElement('button',{onClick:()=>{setOpen(false);setText('');},style:{background:'transparent',border:'none',color:CR2,cursor:'pointer',fontSize:18}},'✕')
+    ),
+    React.createElement('div',{
+      onDrop:handleDrop,
+      onDragOver:e=>{e.preventDefault();setDragOver(true);},
+      onDragLeave:()=>setDragOver(false),
+      onClick:()=>pickFile('.txt,.docx,.xlsx,.xls,.csv',handleFile),
+      style:{border:'2px dashed '+(dragOver?PU:BD2),borderRadius:6,padding:16,marginBottom:12,textAlign:'center',cursor:'pointer',background:dragOver?'rgba(180,127,255,0.05)':N}
+    },
+      React.createElement('div',{style:{fontSize:24,marginBottom:6}},'📄'),
+      React.createElement('div',{style:{fontSize:12,color:CR2}},'Drop file or click to browse'),
+      React.createElement('div',{style:{fontSize:11,color:CR3,marginTop:4,fontFamily:'JetBrains Mono,monospace'}},'.txt .docx .xlsx .csv')
+    ),
+    React.createElement('textarea',{value:text,onChange:e=>setText(e.target.value),placeholder:'Or paste transcript, process map, meeting notes or any text here…',rows:5,style:{...inp,resize:'vertical',marginBottom:8}}),
+    text&&React.createElement('div',{style:{fontSize:11,color:CR3,fontFamily:'JetBrains Mono,monospace',marginBottom:8}},text.length.toLocaleString()+' characters loaded'),
+    React.createElement('div',{style:{display:'flex',gap:10,justifyContent:'flex-end'}},
+      inline&&React.createElement(Btn,{onClick:()=>{setOpen(false);setText('');}}, 'Cancel'),
+      React.createElement('button',{onClick:()=>run(text),disabled:loading||!text,style:{background:PU,color:N,border:'none',padding:'8px 20px',borderRadius:3,fontSize:12,fontWeight:600,cursor:loading||!text?'not-allowed':'pointer',fontFamily:'Inter,sans-serif',opacity:loading||!text?0.6:1}},loading?'Extracting…':'✦ Extract with AI')
+    )
+  );
+}
+
+function AITab({cias,setCias,stakeholders,setStakeholders,activities,setActivities,setToast}){
+  const[result,setResult]=useState(null);
+  const[sel,setSel]=useState({cia:true,sh:true,act:true});
+  const apply=()=>{
+    const added=[];
+    if(sel.cia&&result.cia_entries?.length){setCias(p=>{const n=[...p,...result.cia_entries.map((r,i)=>({...r,id:nid([...p,...result.cia_entries.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});added.push(result.cia_entries.length+' CIA');}
+    if(sel.sh&&result.stakeholders?.length){setStakeholders(p=>{const n=[...p,...result.stakeholders.map((r,i)=>({...r,id:nid([...p,...result.stakeholders.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});added.push(result.stakeholders.length+' stakeholders');}
+    if(sel.act&&result.activities?.length){setActivities(p=>{const n=[...p,...result.activities.map((r,i)=>({...r,id:nid([...p,...result.activities.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});added.push(result.activities.length+' activities');}
+    setToast('✦ Added '+added.join(', '));setTimeout(()=>setToast(''),4000);setResult(null);
+  };
+  const onExtract=r=>setResult(r);
+  return React.createElement('div',null,
+    React.createElement('div',{style:{marginBottom:24}},
+      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:22,fontWeight:500,color:CR,letterSpacing:'-0.01em',marginBottom:4}},'✦ AI Document Extraction'),
+      React.createElement('div',{style:{fontSize:12,color:CR2}},'Upload any document — transcript, process map, workshop output — AI extracts change data automatically')
+    ),
+    React.createElement(AIPanel,{onExtract,setToast,inline:false}),
+    result&&React.createElement('div',{style:{...card,borderColor:'rgba(180,127,255,0.3)',background:'rgba(180,127,255,0.04)',marginTop:16}},
+      React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:PU,marginBottom:12}},'✦ Extraction complete — review before adding'),
+      result.summary&&React.createElement('div',{style:{fontSize:13,color:CR2,lineHeight:1.7,marginBottom:20,padding:'12px 16px',background:N3,borderRadius:4,borderLeft:'3px solid '+PU}},React.createElement('strong',{style:{color:CR}},'Summary: '),result.summary),
+      React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:20}},
+        [['cia',(result.cia_entries?.length||0)+' CIA entries',result.cia_entries?.length>0],['sh',(result.stakeholders?.length||0)+' stakeholders',result.stakeholders?.length>0],['act',(result.activities?.length||0)+' activities',result.activities?.length>0]].map(([key,label,hasData])=>
+          React.createElement('div',{key,onClick:()=>hasData&&setSel(p=>({...p,[key]:!p[key]})),style:{...card,borderColor:sel[key]&&hasData?PU:BD,background:sel[key]&&hasData?'rgba(180,127,255,0.1)':N2,cursor:hasData?'pointer':'default',opacity:hasData?1:0.4}},
+            React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8}},
+              React.createElement('div',{style:{width:16,height:16,borderRadius:3,border:'2px solid '+(sel[key]&&hasData?PU:BD2),background:sel[key]&&hasData?PU:'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:N,flexShrink:0}},sel[key]&&hasData?'✓':''),
+              React.createElement('div',{style:{fontSize:12,fontWeight:500,color:CR}},label)
+            )
+          )
+        )
+      ),
+      React.createElement('div',{style:{display:'flex',gap:10,justifyContent:'flex-end',borderTop:'1px solid '+BD,paddingTop:16}},
+        React.createElement(Btn,{onClick:()=>setResult(null)},'Discard'),
+        React.createElement('button',{onClick:apply,style:{background:PU,color:N,border:'none',padding:'9px 24px',borderRadius:3,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif'}},'✦ Add selected to programme')
+      )
+    )
+  );
+}
+
+function Dashboard({cias,stakeholders,activities}){
+  const ta=activities.length||1,ts=stakeholders.length||1;
+  const complete=activities.filter(a=>a.status==='Complete').length;
+  const totalPop=stakeholders.reduce((a,s)=>a+(parseInt(s.population)||0),0);
+  const avgR=(stakeholders.reduce((a,s)=>a+(parseInt(s.readiness)||0),0)/ts).toFixed(1);
+  const pos=stakeholders.filter(s=>s.sentiment==='Positive').length;
+  const neu=stakeholders.filter(s=>s.sentiment==='Neutral').length;
+  const res=stakeholders.filter(s=>s.sentiment==='Resistant').length;
+  const health=Math.round((complete/ta)*0.4*100+(stakeholders.reduce((a,s)=>a+(parseInt(s.readiness)||0),0)/(ts*5))*0.3*100+((pos+neu)/ts)*0.3*100);
+  const hc=health>=75?GR:health>=50?YL:health>=30?A:RD;
+  const hl=health>=75?'On track':health>=50?'Needs attention':health>=30?'At risk':'Critical';
+  const atRisk=stakeholders.filter(s=>s.sentiment==='Resistant'||parseInt(s.readiness)<=2);
+  const crit=activities.filter(a=>a.impactLevel==='Critical'&&a.status!=='Complete');
+  const pR=PERSONAS.map(p=>{const g=stakeholders.filter(s=>s.persona===p);if(!g.length)return null;return{p,avg:g.reduce((a,s)=>a+(parseInt(s.readiness)||0),0)/g.length};}).filter(Boolean);
+  const mono={fontFamily:'JetBrains Mono,monospace'};
+  return React.createElement('div',null,
+    React.createElement('div',{style:{marginBottom:24}},React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:22,fontWeight:500,color:CR,letterSpacing:'-0.01em',marginBottom:4}},'Programme Dashboard'),React.createElement('div',{style:{fontSize:12,color:CR2}},'Live overview')),
+    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr',gap:12,marginBottom:20}},
+      React.createElement('div',{style:{...card,borderColor:hc+'44'}},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},'Health'),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:44,fontWeight:500,color:hc,lineHeight:1,letterSpacing:'-0.03em'}},health),React.createElement('div',{style:{...mono,fontSize:9,color:hc,marginTop:4,textTransform:'uppercase'}},hl),React.createElement(Bar,{pct:health,color:hc,height:3})),
+      [['Activities',complete+'/'+ta,GR],['Avg readiness',avgR+'/5',parseFloat(avgR)>=3.5?GR:parseFloat(avgR)>=2.5?YL:RD],['People',totalPop.toLocaleString(),CR],['Advocates',stakeholders.filter(s=>s.isAdvocate).length,A]].map(([l,v,c])=>React.createElement('div',{key:l,style:card},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},l),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:26,fontWeight:500,color:c,lineHeight:1}},v)))
+    ),
+    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1.4fr 1fr',gap:16,marginBottom:16}},
+      React.createElement('div',{style:card},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:12}},'Activity progress'),[['Complete',complete,GR],['In progress',activities.filter(a=>a.status==='In progress').length,A],['Not started',activities.filter(a=>a.status==='Not started').length,RD]].map(([l,n,c])=>React.createElement('div',{key:l,style:{display:'grid',gridTemplateColumns:'120px 1fr 28px',alignItems:'center',gap:10,marginBottom:10}},React.createElement('div',{style:{fontSize:12,color:CR2}},l),React.createElement(Bar,{pct:n/ta*100,color:c,height:8}),React.createElement('div',{style:{...mono,fontSize:11,color:c,textAlign:'right'}},n)))),
+      React.createElement('div',{style:card},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:12}},'Sentiment'),[['Positive',pos,GR],['Neutral',neu,YL],['Resistant',res,RD]].map(([l,n,c])=>React.createElement('div',{key:l,style:{display:'grid',gridTemplateColumns:'70px 1fr 28px',alignItems:'center',gap:10,marginBottom:10}},React.createElement('div',{style:{fontSize:12,color:CR2}},l),React.createElement(Bar,{pct:n/ts*100,color:c,height:8}),React.createElement('div',{style:{...mono,fontSize:11,color:c,textAlign:'right'}},n))))
+    ),
+    pR.length>0&&React.createElement('div',{style:{...card,marginBottom:16}},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:12}},'Readiness by persona'),React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px 32px'}},pR.map(({p,avg})=>{const c=avg>=3.5?GR:avg>=2.5?YL:RD;return React.createElement('div',{key:p,style:{display:'grid',gridTemplateColumns:'170px 1fr 34px',alignItems:'center',gap:10,padding:'5px 0',borderBottom:'1px solid '+BD}},React.createElement('div',{style:{fontSize:12,color:CR2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},p),React.createElement(Bar,{pct:(avg/5)*100,color:c,height:7}),React.createElement('div',{style:{...mono,fontSize:11,color:c,textAlign:'right'}},avg.toFixed(1)));}))),
+    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}},
+      React.createElement('div',{style:{...card,borderColor:atRisk.length?'rgba(255,107,107,0.25)':BD}},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:atRisk.length?RD:CR3,marginBottom:10}},'⚠ At-risk groups ('+atRisk.length+')'),atRisk.length?atRisk.slice(0,4).map(sh=>React.createElement('div',{key:sh.id,style:{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid '+BD}},React.createElement('div',null,React.createElement('div',{style:{fontSize:12,fontWeight:500}},sh.name),React.createElement('div',{style:{fontSize:11,color:CR2}},sh.persona+' · '+sh.population+' people')),React.createElement(Pill,{v:sh.sentiment,map:SN_MAP}))):React.createElement('div',{style:{fontSize:12,color:GR,fontStyle:'italic'}},'✦ No at-risk groups')),
+      React.createElement('div',{style:{...card,borderColor:crit.length?'rgba(245,146,30,0.25)':BD}},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:crit.length?A:CR3,marginBottom:10}},'✦ Critical not complete ('+crit.length+')'),crit.length?crit.slice(0,4).map(a=>React.createElement('div',{key:a.id,style:{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid '+BD}},React.createElement('div',null,React.createElement('div',{style:{fontSize:12,fontWeight:500}},a.title),React.createElement('div',{style:{fontSize:11,color:CR2}},a.audience)),React.createElement(Pill,{v:a.status,map:ST_MAP}))):React.createElement('div',{style:{fontSize:12,color:GR,fontStyle:'italic'}},'✦ All critical complete'))
+    )
+  );
+}
+
+function CIAModule({cias,setCias,stakeholders,setStakeholders,activities,setActivities,setToast}){
+  const E={processArea:'',subProcess:'',description:'',changeType:'Process change',affectedRoles:'',impactLevel:'High',benefits:'',fuel:'',friction:'',status:'Draft'};
+  const[show,setShow]=useState(false);const[edit,setEdit]=useState(null);const[fd,setFd]=useState(E);const[showAI,setShowAI]=useState(false);
+  const s=k=>v=>setFd(p=>({...p,[k]:v}));
+  const openAdd=()=>{setEdit(null);setFd(E);setShow(true);};const openEdit=i=>{setEdit(i);setFd({...i});setShow(true);};const close=()=>{setShow(false);setEdit(null);};
+  const submit=()=>{if(!fd.processArea||!fd.description)return alert('Required.');edit?setCias(p=>p.map(c=>c.id===edit.id?{...fd,id:edit.id}:c)):setCias(p=>[...p,{...fd,id:nid(p,'CIA')}]);close();};
+  const del=id=>{if(window.confirm('Delete?'))setCias(p=>p.filter(c=>c.id!==id));};
+  const doImp=()=>pickFile('.xlsx,.xls,.csv',f=>importXL(f,rows=>{const m=rows.filter(r=>getCol(r,['processarea','process area','process']));if(!m.length)return alert('No rows found.');setCias(p=>{const n=[...p,...m.map((r,i)=>({...mapCIA(r),id:nid([...p,...m.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});setToast('✦ '+m.length+' rows imported');setTimeout(()=>setToast(''),3000);}));
+  const doExp=()=>exportXL(cias.map(c=>({'ID':c.id,'Process Area':c.processArea,'Sub-process':c.subProcess,'Description':c.description,'Change Type':c.changeType,'Affected Roles':c.affectedRoles,'Impact Level':c.impactLevel,'Benefits':c.benefits,'Fuel':c.fuel,'Friction':c.friction,'Status':c.status})),'CIA-'+Date.now()+'.xlsx');
+  const onAI=r=>{
+    if(r.cia_entries?.length)setCias(p=>{const n=[...p,...r.cia_entries.map((x,i)=>({...x,id:nid([...p,...r.cia_entries.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});
+    if(r.stakeholders?.length)setStakeholders(p=>{const n=[...p,...r.stakeholders.map((x,i)=>({...x,id:nid([...p,...r.stakeholders.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});
+    if(r.activities?.length)setActivities(p=>{const n=[...p,...r.activities.map((x,i)=>({...x,id:nid([...p,...r.activities.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});
+  };
+  return React.createElement('div',null,
+    React.createElement(SectionHead,{title:'Change Impact Assessment',sub:'Map AI process changes to roles, benefits and friction',onAdd:openAdd,onImport:doImp,onExport:doExp}),
+    React.createElement('div',{style:{marginBottom:16}},showAI?React.createElement(AIPanel,{onExtract:r=>{onAI(r);setShowAI(false);},setToast,inline:true}):React.createElement(Btn,{sm:true,ai:true,onClick:()=>setShowAI(true)},'✦ AI Extract from document')),
+    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}},[['Total',cias.length,null],['Confirmed',cias.filter(c=>c.status==='Confirmed').length,GR],['Draft',cias.filter(c=>c.status==='Draft').length,YL],['Closed',cias.filter(c=>c.status==='Closed').length,null]].map(([l,v,c])=>React.createElement('div',{key:l,style:card},React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},l),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:28,fontWeight:500,color:c||CR,lineHeight:1}},v)))),
+    React.createElement('div',{style:{background:N2,border:'1px solid '+BD,borderRadius:6,overflowX:'auto'}},
+      React.createElement('table',{style:{width:'100%',borderCollapse:'collapse',minWidth:900}},
+        React.createElement('thead',null,React.createElement('tr',null,['ID','Process / Sub-process','Description','Type','Impact','Status','Benefits','Friction',''].map((h,i)=>React.createElement('th',{key:i,style:th},h)))),
+        React.createElement('tbody',null,
+          cias.map(c=>React.createElement('tr',{key:c.id,onClick:()=>openEdit(c),style:{cursor:'pointer'},onMouseEnter:e=>e.currentTarget.style.background='rgba(237,232,223,0.03)',onMouseLeave:e=>e.currentTarget.style.background=''},
+            React.createElement('td',{style:{...td,fontFamily:'JetBrains Mono,monospace',fontSize:10,color:CR3}},c.id),
+            React.createElement('td',{style:td},React.createElement('div',{style:{fontWeight:500}},c.processArea),React.createElement('div',{style:{fontSize:11,color:CR2}},c.subProcess)),
+            React.createElement('td',{style:{...td,maxWidth:200,color:CR2}},c.description?.slice(0,75)+(c.description?.length>75?'…':'')),
+            React.createElement('td',{style:{...td,fontSize:11,color:CR2}},c.changeType),
+            React.createElement('td',{style:td},React.createElement(Pill,{v:c.impactLevel,map:IM_MAP})),
+            React.createElement('td',{style:td},React.createElement(Pill,{v:c.status,map:ST_MAP})),
+            React.createElement('td',{style:{...td,maxWidth:160,fontSize:11,color:CR2}},c.benefits?.slice(0,55)+(c.benefits?.length>55?'…':'')),
+            React.createElement('td',{style:{...td,maxWidth:160,fontSize:11,color:CR2}},c.friction?.slice(0,55)+(c.friction?.length>55?'…':'')),
+            React.createElement('td',{style:{...td,width:44}},React.createElement(DeleteX,{onClick:()=>del(c.id)}))
+          )),
+          !cias.length&&React.createElement('tr',null,React.createElement('td',{colSpan:9,style:{padding:48,textAlign:'center',color:CR3,fontFamily:'Fraunces,serif',fontSize:16,fontStyle:'italic'}},'No impacts yet'))
+        )
+      )
+    ),
+    show&&React.createElement(FormWrap,{title:edit?'Edit '+edit.id:'New change impact',onClose:close,onSubmit:submit,submitLabel:edit?'Save':'Add to CIA'},
+      React.createElement(F,{label:'Process Area'},React.createElement(FInp,{value:fd.processArea,onChange:s('processArea'),placeholder:'e.g. Finance'})),
+      React.createElement(F,{label:'Sub-process'},React.createElement(FInp,{value:fd.subProcess,onChange:s('subProcess'),placeholder:'e.g. Accounts Payable'})),
+      React.createElement(F,{label:'Description',full:true},React.createElement(FTxt,{value:fd.description,onChange:s('description'),placeholder:'What is changing?'})),
+      React.createElement(F,{label:'Change Type'},React.createElement(FSel,{value:fd.changeType,onChange:s('changeType'),options:['Process change','Role change','Technology','Policy','Other']})),
+      React.createElement(F,{label:'Affected Roles'},React.createElement(FInp,{value:fd.affectedRoles,onChange:s('affectedRoles'),placeholder:'e.g. AP Clerks'})),
+      React.createElement(F,{label:'Impact Level'},React.createElement(FSel,{value:fd.impactLevel,onChange:s('impactLevel'),options:['Low','Medium','High','Critical']})),
+      React.createElement(F,{label:'Status'},React.createElement(FSel,{value:fd.status,onChange:s('status'),options:['Draft','Confirmed','Closed']})),
+      React.createElement(F,{label:'Benefits',full:true},React.createElement(FTxt,{value:fd.benefits,onChange:s('benefits'),placeholder:'What value does this deliver?'})),
+      React.createElement(F,{label:'Fuel'},React.createElement(FTxt,{value:fd.fuel,onChange:s('fuel'),placeholder:'What motivates adoption?'})),
+      React.createElement(F,{label:'Friction'},React.createElement(FTxt,{value:fd.friction,onChange:s('friction'),placeholder:'What barriers might arise?'}))
+    )
+  );
+}
+
+function StakeholderModule({stakeholders,setStakeholders,cias,setCias,activities,setActivities,setToast}){
+  const E={name:'',jobTitle:'',persona:'End Users',site:'',population:1,readiness:3,sentiment:'Unknown',influence:'Medium',impactLevel:'Medium',isAdvocate:false,notes:''};
+  const[show,setShow]=useState(false);const[edit,setEdit]=useState(null);const[fd,setFd]=useState(E);const[pf,setPf]=useState('all');const[showAI,setShowAI]=useState(false);
+  const s=k=>v=>setFd(p=>({...p,[k]:v}));
+  const filt=pf==='all'?stakeholders:stakeholders.filter(sh=>sh.persona===pf);
+  const openAdd=()=>{setEdit(null);setFd(E);setShow(true);};const openEdit=i=>{setEdit(i);setFd({...i});setShow(true);};const close=()=>{setShow(false);setEdit(null);};
+  const submit=()=>{if(!fd.name)return alert('Name required.');const row={...fd,population:parseInt(fd.population)||0,readiness:parseInt(fd.readiness)||3};edit?setStakeholders(p=>p.map(sh=>sh.id===edit.id?{...row,id:edit.id}:sh)):setStakeholders(p=>[...p,{...row,id:nid(p,'SH')}]);close();};
+  const del=id=>{if(window.confirm('Delete?'))setStakeholders(p=>p.filter(sh=>sh.id!==id));};
+  const doImp=()=>pickFile('.xlsx,.xls,.csv',f=>importXL(f,rows=>{const m=rows.filter(r=>getCol(r,['name','stakeholder','group']));if(!m.length)return alert('No rows.');setStakeholders(p=>{const n=[...p,...m.map((r,i)=>({...mapSH(r),id:nid([...p,...m.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});setToast('✦ '+m.length+' rows imported');setTimeout(()=>setToast(''),3000);}));
+  const doExp=()=>exportXL(stakeholders.map(s=>({'ID':s.id,'Name':s.name,'Job Title':s.jobTitle,'Persona':s.persona,'Site':s.site,'Population':s.population,'Readiness':s.readiness,'Sentiment':s.sentiment,'Influence':s.influence,'Impact Level':s.impactLevel,'Advocate':s.isAdvocate?'Yes':'No','Notes':s.notes})),'Stakeholders-'+Date.now()+'.xlsx');
+  const onAI=r=>{
+    if(r.stakeholders?.length)setStakeholders(p=>{const n=[...p,...r.stakeholders.map((x,i)=>({...x,id:nid([...p,...r.stakeholders.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});
+    if(r.cia_entries?.length)setCias(p=>{const n=[...p,...r.cia_entries.map((x,i)=>({...x,id:nid([...p,...r.cia_entries.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});
+    if(r.activities?.length)setActivities(p=>{const n=[...p,...r.activities.map((x,i)=>({...x,id:nid([...p,...r.activities.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});
+  };
+  return React.createElement('div',null,
+    React.createElement(SectionHead,{title:'Stakeholder Register & Analysis',sub:'Map people, score readiness and track sentiment',onAdd:openAdd,onImport:doImp,onExport:doExp}),
+    React.createElement('div',{style:{marginBottom:16}},showAI?React.createElement(AIPanel,{onExtract:r=>{onAI(r);setShowAI(false);},setToast,inline:true}):React.createElement(Btn,{sm:true,ai:true,onClick:()=>setShowAI(true)},'✦ AI Extract from document')),
+    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}},[['Total pop',stakeholders.reduce((a,sh)=>a+(parseInt(sh.population)||0),0).toLocaleString(),null],['Groups',stakeholders.length,null],['Advocates',stakeholders.filter(s=>s.isAdvocate).length,GR],['Resistant',stakeholders.filter(s=>s.sentiment==='Resistant').length,RD]].map(([l,v,c])=>React.createElement('div',{key:l,style:card},React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},l),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:28,fontWeight:500,color:c||CR,lineHeight:1}},v)))),
+    React.createElement('div',{style:{display:'flex',gap:8,marginBottom:16,flexWrap:'wrap'}},['all',...PERSONAS].map(p=>React.createElement('button',{key:p,onClick:()=>setPf(p),style:{padding:'5px 13px',borderRadius:20,border:'1px solid '+(pf===p?A:BD2),background:pf===p?A:'transparent',color:pf===p?N:CR2,fontSize:11,cursor:'pointer',fontFamily:'Inter,sans-serif'}},p==='all'?'All':p))),
+    React.createElement('div',{style:{background:N2,border:'1px solid '+BD,borderRadius:6,overflowX:'auto'}},
+      React.createElement('table',{style:{width:'100%',borderCollapse:'collapse',minWidth:900}},
+        React.createElement('thead',null,React.createElement('tr',null,['Name','Persona','Site','Pop.','Readiness','Sentiment','Influence','Impact','Advocate','Notes',''].map((h,i)=>React.createElement('th',{key:i,style:th},h)))),
+        React.createElement('tbody',null,
+          filt.map(sh=>React.createElement('tr',{key:sh.id,onClick:()=>openEdit(sh),style:{cursor:'pointer'},onMouseEnter:e=>e.currentTarget.style.background='rgba(237,232,223,0.03)',onMouseLeave:e=>e.currentTarget.style.background=''},
+            React.createElement('td',{style:td},React.createElement('div',{style:{fontWeight:500}},sh.name),React.createElement('div',{style:{fontSize:11,color:CR2}},sh.jobTitle)),
+            React.createElement('td',{style:{...td,fontSize:11,color:CR2}},sh.persona),
+            React.createElement('td',{style:{...td,fontSize:11,color:CR2}},sh.site),
+            React.createElement('td',{style:{...td,fontFamily:'JetBrains Mono,monospace',fontSize:12}},sh.population),
+            React.createElement('td',{style:td},React.createElement('div',{style:{display:'flex',gap:2}},[1,2,3,4,5].map(n=>React.createElement('span',{key:n,style:{width:9,height:9,borderRadius:2,background:n<=(sh.readiness||0)?A:'rgba(237,232,223,0.1)',display:'inline-block'}})))),
+            React.createElement('td',{style:td},React.createElement(Pill,{v:sh.sentiment,map:SN_MAP})),
+            React.createElement('td',{style:td},React.createElement(Pill,{v:sh.influence,map:{High:[A,AB],Medium:[YL,'rgba(255,209,102,0.1)'],Low:[CR2,'rgba(237,232,223,0.08)']}})),
+            React.createElement('td',{style:td},React.createElement(Pill,{v:sh.impactLevel,map:IM_MAP})),
+            React.createElement('td',{style:{...td,textAlign:'center'}},React.createElement('span',{style:{color:sh.isAdvocate?GR:CR3,fontSize:14}},sh.isAdvocate?'✦':'○')),
+            React.createElement('td',{style:{...td,fontSize:11,color:CR2,maxWidth:140}},sh.notes?.slice(0,45)+(sh.notes?.length>45?'…':'')),
+            React.createElement('td',{style:{...td,width:44}},React.createElement(DeleteX,{onClick:()=>del(sh.id)}))
+          )),
+          !filt.length&&React.createElement('tr',null,React.createElement('td',{colSpan:11,style:{padding:48,textAlign:'center',color:CR3,fontFamily:'Fraunces,serif',fontSize:16,fontStyle:'italic'}},'No stakeholders yet'))
+        )
+      )
+    ),
+    show&&React.createElement(FormWrap,{title:edit?'Edit '+edit.id:'New stakeholder',onClose:close,onSubmit:submit,submitLabel:edit?'Save':'Add'},
+      React.createElement(F,{label:'Name'},React.createElement(FInp,{value:fd.name,onChange:s('name'),placeholder:'e.g. AP Finance Team'})),
+      React.createElement(F,{label:'Job Title'},React.createElement(FInp,{value:fd.jobTitle,onChange:s('jobTitle'),placeholder:'e.g. AP Clerks'})),
+      React.createElement(F,{label:'Persona'},React.createElement(FSel,{value:fd.persona,onChange:s('persona'),options:PERSONAS})),
+      React.createElement(F,{label:'Site'},React.createElement(FInp,{value:fd.site,onChange:s('site'),placeholder:'e.g. London HQ'})),
+      React.createElement(F,{label:'Population'},React.createElement(FInp,{value:fd.population,onChange:s('population'),type:'number'})),
+      React.createElement(F,{label:'Readiness (1-5)'},React.createElement(FSel,{value:fd.readiness,onChange:s('readiness'),options:[1,2,3,4,5]})),
+      React.createElement(F,{label:'Sentiment'},React.createElement(FSel,{value:fd.sentiment,onChange:s('sentiment'),options:['Positive','Neutral','Resistant','Unknown']})),
+      React.createElement(F,{label:'Influence'},React.createElement(FSel,{value:fd.influence,onChange:s('influence'),options:['High','Medium','Low']})),
+      React.createElement(F,{label:'Impact Level'},React.createElement(FSel,{value:fd.impactLevel,onChange:s('impactLevel'),options:['Critical','High','Medium','Low']})),
+      React.createElement(F,{label:'Advocate?'},React.createElement('div',{style:{display:'flex',alignItems:'center',gap:10,paddingTop:6}},React.createElement('input',{type:'checkbox',checked:!!fd.isAdvocate,onChange:e=>s('isAdvocate')(e.target.checked),style:{width:16,height:16,accentColor:A}}),React.createElement('span',{style:{fontSize:13,color:CR2}},'Includes change advocates'))),
+      React.createElement(F,{label:'Notes',full:true},React.createElement(FTxt,{value:fd.notes,onChange:s('notes'),placeholder:'Context, concerns, priorities'}))
+    )
+  );
+}
+
+function CEPlanModule({activities,setActivities,cias,setCias,stakeholders,setStakeholders,setToast}){
+  const E={title:'',description:'',ciaLink:'',audience:'',channel:'',owner:'',reviewer:'',status:'Not started',publishDate:'',impactLevel:'Medium'};
+  const[show,setShow]=useState(false);const[edit,setEdit]=useState(null);const[fd,setFd]=useState(E);const[sf,setSf]=useState('all');const[view,setView]=useState('activities');const[showAI,setShowAI]=useState(false);
+  const s=k=>v=>setFd(p=>({...p,[k]:v}));
+  const setAud=v=>{const sg=SUGGEST[v]||{};setFd(p=>({...p,audience:v,owner:sg.owner||'',channel:sg.channel||'',reviewer:sg.reviewer||''}));};
+  const filt=sf==='all'?activities:activities.filter(a=>a.status===sf);
+  const openAdd=()=>{setEdit(null);setFd(E);setShow(true);};const openEdit=i=>{setEdit(i);setFd({...i});setShow(true);};const close=()=>{setShow(false);setEdit(null);};
+  const submit=()=>{if(!fd.title)return alert('Title required.');edit?setActivities(p=>p.map(a=>a.id===edit.id?{...fd,id:edit.id}:a)):setActivities(p=>[...p,{...fd,id:nid(p,'A')}]);close();};
+  const del=id=>{if(window.confirm('Delete?'))setActivities(p=>p.filter(a=>a.id!==id));};
+  const doImp=()=>pickFile('.xlsx,.xls,.csv',f=>importXL(f,rows=>{const m=rows.filter(r=>getCol(r,['title','activity','name']));if(!m.length)return alert('No rows.');setActivities(p=>{const n=[...p,...m.map((r,i)=>({...mapAct(r),id:nid([...p,...m.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});setToast('✦ '+m.length+' rows imported');setTimeout(()=>setToast(''),3000);}));
+  const doExp=()=>exportXL(activities.map(a=>({'ID':a.id,'Title':a.title,'Description':a.description,'CIA Link':a.ciaLink,'Audience':a.audience,'Channel':a.channel,'Owner':a.owner,'Reviewer':a.reviewer,'Status':a.status,'Publish Date':a.publishDate,'Impact Level':a.impactLevel})),'CEPlan-'+Date.now()+'.xlsx');
+  const onAI=r=>{
+    if(r.activities?.length)setActivities(p=>{const n=[...p,...r.activities.map((x,i)=>({...x,id:nid([...p,...r.activities.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});
+    if(r.cia_entries?.length)setCias(p=>{const n=[...p,...r.cia_entries.map((x,i)=>({...x,id:nid([...p,...r.cia_entries.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});
+    if(r.stakeholders?.length)setStakeholders(p=>{const n=[...p,...r.stakeholders.map((x,i)=>({...x,id:nid([...p,...r.stakeholders.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});
+  };
+  const hP=useMemo(()=>[...new Set(stakeholders.map(sh=>sh.persona))],[stakeholders]);
+  const hS=useMemo(()=>[...new Set(stakeholders.map(sh=>sh.site))],[stakeholders]);
+  const hVal=(p,s)=>{const sh=stakeholders.find(x=>x.persona===p&&x.site===s);if(!sh)return 0;return Math.min(4,Math.round((parseInt(sh.population)||0)/12)+Math.round(activities.filter(a=>a.audience===p).length/2));};
+  const hBg=['rgba(237,232,223,0.04)','rgba(245,146,30,0.15)','rgba(245,146,30,0.33)','rgba(245,146,30,0.62)','#F5921E'];
+  const cOpts=[{value:'',label:'— None —'},...cias.map(c=>({value:c.id,label:c.id+' · '+c.processArea}))];
+  return React.createElement('div',null,
+    React.createElement(SectionHead,{title:'Communications & Engagement Plan',sub:'Plan, assign and track every change activity',onAdd:openAdd,onImport:doImp,onExport:doExp}),
+    React.createElement('div',{style:{marginBottom:16}},showAI?React.createElement(AIPanel,{onExtract:r=>{onAI(r);setShowAI(false);},setToast,inline:true}):React.createElement(Btn,{sm:true,ai:true,onClick:()=>setShowAI(true)},'✦ AI Extract from document')),
+    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}},[['Total',activities.length,null],['Complete',activities.filter(a=>a.status==='Complete').length,GR],['In progress',activities.filter(a=>a.status==='In progress').length,A],['Not started',activities.filter(a=>a.status==='Not started').length,RD]].map(([l,v,c])=>React.createElement('div',{key:l,style:card},React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},l),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:28,fontWeight:500,color:c||CR,lineHeight:1}},v)))),
+    React.createElement('div',{style:{display:'flex',gap:4,background:N3,border:'1px solid '+BD,borderRadius:6,padding:4,width:'fit-content',marginBottom:20}},[['activities','Activities'],['heatmap','Impact Heatmap']].map(([v,l])=>React.createElement('button',{key:v,onClick:()=>setView(v),style:{padding:'6px 18px',borderRadius:4,border:'none',background:view===v?A:'transparent',color:view===v?N:CR2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:'Inter,sans-serif'}},l))),
+    view==='activities'&&React.createElement('div',null,
+      React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:16,flexWrap:'wrap'}},['all','Not started','In progress','Complete','On hold'].map(f=>React.createElement('button',{key:f,onClick:()=>setSf(f),style:{padding:'5px 13px',borderRadius:20,border:'1px solid '+(sf===f?A:BD2),background:sf===f?A:'transparent',color:sf===f?N:CR2,fontSize:11,cursor:'pointer',fontFamily:'Inter,sans-serif'}},f==='all'?'All':f)),React.createElement('span',{style:{marginLeft:'auto',fontFamily:'JetBrains Mono,monospace',fontSize:10,color:CR3}},filt.length+' shown')),
+      React.createElement('div',{style:{background:N2,border:'1px solid '+BD,borderRadius:6,overflowX:'auto'}},
+        React.createElement('table',{style:{width:'100%',borderCollapse:'collapse',minWidth:880}},
+          React.createElement('thead',null,React.createElement('tr',null,['#','Activity','Status','Audience','Channel','Owner','Impact','Date',''].map((h,i)=>React.createElement('th',{key:i,style:th},h)))),
+          React.createElement('tbody',null,
+            filt.map(a=>React.createElement('tr',{key:a.id,onClick:()=>openEdit(a),style:{cursor:'pointer'},onMouseEnter:e=>e.currentTarget.style.background='rgba(237,232,223,0.03)',onMouseLeave:e=>e.currentTarget.style.background=''},
+              React.createElement('td',{style:{...td,fontFamily:'JetBrains Mono,monospace',fontSize:10,color:CR3,width:72}},a.id),
+              React.createElement('td',{style:{...td,minWidth:180}},React.createElement('div',{style:{fontWeight:500,fontSize:12}},a.title),a.ciaLink&&React.createElement('div',{style:{fontSize:10,color:A,marginTop:2,fontFamily:'JetBrains Mono,monospace'}},'↳ '+a.ciaLink)),
+              React.createElement('td',{style:td},React.createElement(Pill,{v:a.status,map:ST_MAP})),
+              React.createElement('td',{style:{...td,fontSize:11,color:CR2}},a.audience),
+              React.createElement('td',{style:{...td,fontSize:11,color:CR2}},a.channel),
+              React.createElement('td',{style:{...td,fontSize:11,color:CR2}},a.owner),
+              React.createElement('td',{style:td},React.createElement(Pill,{v:a.impactLevel,map:IM_MAP})),
+              React.createElement('td',{style:{...td,fontFamily:'JetBrains Mono,monospace',fontSize:10,color:CR2}},a.publishDate||'—'),
+              React.createElement('td',{style:{...td,width:44}},React.createElement(DeleteX,{onClick:()=>del(a.id)}))
+            )),
+            !filt.length&&React.createElement('tr',null,React.createElement('td',{colSpan:9,style:{padding:48,textAlign:'center',color:CR3,fontFamily:'Fraunces,serif',fontSize:16,fontStyle:'italic'}},'No activities yet'))
+          )
+        )
+      )
+    ),
+    view==='heatmap'&&React.createElement('div',{style:{background:N2,border:'1px solid '+BD,borderRadius:6,padding:20,overflowX:'auto'}},
+      hP.length&&hS.length?React.createElement('div',null,
+        React.createElement('table',{style:{borderCollapse:'collapse',width:'100%'}},
+          React.createElement('thead',null,React.createElement('tr',null,React.createElement('th',{style:{...th,textAlign:'left',padding:'10px 16px',width:200}},'Persona / Site'),...hS.map(s=>React.createElement('th',{key:s,style:{...th,textAlign:'center',padding:'10px 8px'}},s)))),
+          React.createElement('tbody',null,...hP.map(p=>React.createElement('tr',{key:p},React.createElement('th',{style:{background:N3,textAlign:'left',padding:'11px 16px',color:CR,fontWeight:500,fontSize:12,fontFamily:'Inter,sans-serif',borderBottom:'1px solid '+BD,whiteSpace:'nowrap'}},p),...hS.map(s=>{const v=hVal(p,s);return React.createElement('td',{key:s,style:{height:44,textAlign:'center',fontFamily:'JetBrains Mono,monospace',fontSize:13,fontWeight:600,background:hBg[v],color:v===4?N:v>0?CR:CR3,border:'2px solid '+N}},v>0?['-','1','2','3','4+'][v]:'');}))))
+        ),
+        React.createElement('div',{style:{display:'flex',gap:14,marginTop:12,fontSize:11,color:CR2,flexWrap:'wrap',alignItems:'center'}},React.createElement('span',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.08em',textTransform:'uppercase',color:CR3}},'Intensity:'),...['N/A','Low','Medium','High','Critical'].map((l,i)=>React.createElement('span',{key:l,style:{display:'flex',alignItems:'center',gap:5}},React.createElement('span',{style:{width:12,height:12,background:hBg[i],borderRadius:2,display:'inline-block'}}),l)))
+      ):React.createElement('div',{style:{padding:48,textAlign:'center',color:CR3,fontFamily:'Fraunces,serif',fontSize:16,fontStyle:'italic'}},'Add stakeholders to generate the heatmap')
+    ),
+    show&&React.createElement(FormWrap,{title:edit?'Edit '+edit.id:'New activity',onClose:close,onSubmit:submit,submitLabel:edit?'Save':'Add to plan'},
+      React.createElement(F,{label:'Title',full:true},React.createElement(FInp,{value:fd.title,onChange:s('title'),placeholder:'e.g. AI Readiness Workshop'})),
+      React.createElement(F,{label:'Description',full:true},React.createElement(FTxt,{value:fd.description,onChange:s('description'),placeholder:'What does this achieve?'})),
+      React.createElement(F,{label:'Linked CIA'},React.createElement('select',{value:fd.ciaLink||'',onChange:e=>s('ciaLink')(e.target.value),style:{...inp,cursor:'pointer'}},cOpts.map(o=>React.createElement('option',{key:o.value,value:o.value},o.label)))),
+      React.createElement(F,{label:'Audience'},React.createElement('select',{value:fd.audience||'',onChange:e=>setAud(e.target.value),style:{...inp,cursor:'pointer'}},React.createElement('option',{value:''},'— Select —'),...Object.keys(SUGGEST).map(k=>React.createElement('option',{key:k,value:k},k)))),
+      React.createElement(F,{label:'Owner',auto:true},React.createElement(FInp,{value:fd.owner,onChange:s('owner'),auto:!!SUGGEST[fd.audience]})),
+      React.createElement(F,{label:'Channel',auto:true},React.createElement(FInp,{value:fd.channel,onChange:s('channel'),auto:!!SUGGEST[fd.audience]})),
+      React.createElement(F,{label:'Reviewer',auto:true},React.createElement(FInp,{value:fd.reviewer,onChange:s('reviewer'),auto:!!SUGGEST[fd.audience]})),
+      React.createElement(F,{label:'Status'},React.createElement(FSel,{value:fd.status,onChange:s('status'),options:['Not started','In progress','Complete','On hold']})),
+      React.createElement(F,{label:'Impact Level'},React.createElement(FSel,{value:fd.impactLevel,onChange:s('impactLevel'),options:['Critical','High','Medium','Low']})),
+      React.createElement(F,{label:'Publish Date'},React.createElement(FInp,{value:fd.publishDate,onChange:s('publishDate'),type:'date'}))
+    )
+  );
+}
+
+function LoginScreen({onLogin}){
+  const[pass,setPass]=useState('');const[err,setErr]=useState('');const[loading,setLoading]=useState(false);
+  const attempt=()=>{setErr('');setLoading(true);setTimeout(()=>{if(pass.trim()===APP_PASSWORD){onLogin();}else{setErr('Incorrect password. Contact '+CONTACT_EMAIL+' for access.');setLoading(false);}},500);};
+  return React.createElement('div',{style:{background:N,minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',fontFamily:'Inter,sans-serif',padding:24}},
+    React.createElement('div',{style:{marginBottom:28,textAlign:'center'}},
+      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:32,fontWeight:500,color:CR,letterSpacing:'-0.02em'}},'shift',React.createElement('span',{style:{color:A}},'.') ),
+      React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:10,letterSpacing:'0.12em',textTransform:'uppercase',color:CR3,marginTop:6}},'AI Change Accelerator · Studio'),
+      React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,color:CR3,marginTop:4,letterSpacing:'0.06em'}},SITE_URL)
+    ),
+    React.createElement('div',{style:{background:N2,border:'1px solid '+BD2,borderRadius:8,padding:32,width:'100%',maxWidth:360}},
+      React.createElement('div',{style:{fontSize:15,fontWeight:500,color:CR,marginBottom:6}},'Enter your access code'),
+      React.createElement('div',{style:{fontSize:12,color:CR2,marginBottom:20}},'Provided when you signed up · ',React.createElement('a',{href:'mailto:'+CONTACT_EMAIL,style:{color:A,textDecoration:'none'}},CONTACT_EMAIL)),
+      React.createElement('input',{type:'password',value:pass,onChange:e=>setPass(e.target.value),onKeyDown:e=>e.key==='Enter'&&attempt(),placeholder:'••••••••',style:{...inp,marginBottom:12,fontSize:16,letterSpacing:'0.1em'}}),
+      err&&React.createElement('div',{style:{fontSize:12,color:RD,background:'rgba(255,107,107,0.1)',border:'1px solid rgba(255,107,107,0.2)',borderRadius:3,padding:'8px 12px',marginBottom:12}},err),
+      React.createElement('button',{onClick:attempt,disabled:loading,style:{width:'100%',background:A,color:N,border:'none',padding:11,borderRadius:4,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif',opacity:loading?0.7:1}},loading?'Checking…':'Access workspace →')
+    )
+  );
+}
+
+function App(){
+  const[authed,setAuthed]=useState(false);const[tab,setTab]=useState('dashboard');
+  const[cias,setCias]=useState(null);const[stakeholders,setStakeholders]=useState(null);const[activities,setActivities]=useState(null);
+  const[saved,setSaved]=useState(true);const[toast,setToast]=useState('');const[toastColor,setToastColor]=useState(GR);
+  useEffect(()=>{setAuthed(load(KEYS.sess,false));setCias(load(KEYS.cia,S_CIA));setStakeholders(load(KEYS.sh,S_SH));setActivities(load(KEYS.act,S_ACT));},[]);
+  const showToast=(msg,color)=>{setToast(msg);setToastColor(color||GR);};
+  const save=(k,d)=>{setSaved(false);persist(k,d);setTimeout(()=>setSaved(true),400);};
+  const wCia=d=>{setCias(d);save(KEYS.cia,d);};const wSh=d=>{setStakeholders(d);save(KEYS.sh,d);};const wAct=d=>{setActivities(d);save(KEYS.act,d);};
+  const login=()=>{setAuthed(true);persist(KEYS.sess,true);};const logout=()=>{setAuthed(false);persist(KEYS.sess,false);};
+  if(cias===null)return React.createElement('div',{style:{background:N,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:CR2,fontFamily:'JetBrains Mono,monospace',fontSize:12}},'Loading…');
+  if(!authed)return React.createElement(LoginScreen,{onLogin:login});
+  const TABS=[['dashboard','Dashboard'],['ai','❖ AI Extract'],['cia','Change Impact'],['stakeholders','Stakeholders'],['ceplan','C&E Plan']];
+  return React.createElement('div',{style:{background:N,minHeight:'100vh',color:CR,fontFamily:'Inter,sans-serif',fontSize:14}},
+    React.createElement('div',{style:{background:N2,borderBottom:'1px solid '+BD,padding:'0 24px',display:'flex',alignItems:'center',justifyContent:'space-between',height:52,position:'sticky',top:0,zIndex:10}},
+      React.createElement('div',{style:{display:'flex',alignItems:'center',gap:16}},
+        React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:18,fontWeight:500,letterSpacing:'-0.02em'}},'shift',React.createElement('span',{style:{color:A}},'.') ),
+        React.createElement('div',{style:{fontSize:11,color:CR3,fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.04em'}},PROGRAMME_NAME),
+        React.createElement('div',{style:{display:'flex',gap:2}},TABS.map(([id,label])=>React.createElement('button',{key:id,onClick:()=>setTab(id),style:{padding:'5px 13px',borderRadius:3,border:'none',background:tab===id?(id==='ai'?PU:A):'transparent',color:tab===id?N:id==='ai'?PU:CR2,fontSize:12,fontWeight:tab===id?600:400,cursor:'pointer',fontFamily:'Inter,sans-serif'}},label)))
+      ),
+      React.createElement('div',{style:{display:'flex',alignItems:'center',gap:16}},
+        React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.06em',color:saved?CR3:A}},saved?'❖ Saved':'❖ Saving…'),
+        React.createElement('div',{style:{fontSize:10,color:A,background:AB,padding:'2px 8px',borderRadius:2,fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.06em'}},'Studio'),
+        React.createElement('button',{onClick:logout,style:{background:'transparent',border:'1px solid '+BD,color:CR2,padding:'4px 12px',borderRadius:3,fontSize:11,cursor:'pointer',fontFamily:'Inter,sans-serif'}},'Sign out')
+      )
+    ),
+    React.createElement('div',{style:{padding:'24px 24px 60px'}},
+      tab==='dashboard'&&React.createElement(Dashboard,{cias,stakeholders,activities}),
+      tab==='ai'&&React.createElement(AITab,{cias,setCias:wCia,stakeholders,setStakeholders:wSh,activities,setActivities:wAct,setToast:showToast}),
+      tab==='cia'&&React.createElement(CIAModule,{cias,setCias:wCia,stakeholders,setStakeholders:wSh,activities,setActivities:wAct,setToast:showToast}),
+      tab==='stakeholders'&&React.createElement(StakeholderModule,{stakeholders,setStakeholders:wSh,cias,setCias:wCia,activities,setActivities:wAct,setToast:showToast}),
+      tab==='ceplan'&&React.createElement(CEPlanModule,{activities,setActivities:wAct,cias,setCias:wCia,stakeholders,setStakeholders:wSh,setToast:showToast})
+    ),
+    React.createElement(Toast,{msg:toast,color:toastColor})
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
