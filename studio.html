@@ -1103,7 +1103,7 @@ function bindEvents() {
 
   // ─ MAIN AI TAB ─
   const aiTextEl = document.getElementById('ai-text');
-  aiTextEl?.addEventListener('input', () => { state.aiText = aiTextEl.value; });
+  aiTextEl?.addEventListener('input', () => { setState({aiText: aiTextEl.value}); });
 
   const aiDrop = document.getElementById('ai-drop');
   if (aiDrop) {
