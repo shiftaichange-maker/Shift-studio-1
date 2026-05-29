@@ -42,7 +42,7 @@ async function readFileAsText(file){return new Promise((res,rej)=>{const ext=fil
 
 async function extractWithClaude(text,focus){
   const prompt='You are a change management expert. Analyse this document and extract structured data.\n\nReturn ONLY valid JSON:\n{\n"summary":"2-3 sentence summary",\n"cia_entries":[{"processArea":"","subProcess":"","description":"","changeType":"Process change","affectedRoles":"","impactLevel":"Medium","benefits":"","fuel":"","friction":"","status":"Draft"}],\n"stakeholders":[{"name":"","jobTitle":"","persona":"End Users","site":"","population":1,"readiness":3,"sentiment":"Unknown","influence":"Medium","impactLevel":"Medium","isAdvocate":false,"notes":""}],\n"activities":[{"title":"","description":"","audience":"End Users","channel":"","owner":"","reviewer":"","status":"Not started","publishDate":"","impactLevel":"Medium","ciaLink":""}]\n}\n\nOnly include entries with enough info. Return [] if nothing found.\n\nDocument:\n'+text.slice(0,12000);
-  const resp=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
+  const resp=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
   if(!resp.ok){const e=await resp.text();throw new Error('Function error '+resp.status+': '+e);}
   const data=await resp.json();
   if(data.error)throw new Error(data.error);
