@@ -3,467 +3,1213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shift — AI Change Accelerator</title>
+<title>Shift — AI Change Accelerator · Studio</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#07101F}select option{background:#0C1A30}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:rgba(237,232,223,0.15);border-radius:3px}</style>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --n:#07101F;--n2:#0C1A30;--n3:#122040;--n4:#1A2E50;
+  --a:#F5921E;--a2:#FFB347;--ab:rgba(245,146,30,0.12);
+  --cr:#EDE8DF;--cr2:rgba(237,232,223,0.65);--cr3:rgba(237,232,223,0.28);
+  --bd:rgba(237,232,223,0.1);--bd2:rgba(237,232,223,0.2);
+  --gr:#3FCF8E;--rd:#FF6B6B;--yl:#FFD166;--pu:#B47FFF;
+}
+body{font-family:'Inter',sans-serif;background:var(--n);color:var(--cr);font-size:14px;line-height:1.5;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:rgba(237,232,223,0.04)}
+::-webkit-scrollbar-thumb{background:rgba(237,232,223,0.15);border-radius:3px}
+select option{background:var(--n2)}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:rgba(12,26,48,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:16px}
+.nav-logo{font-family:'Fraunces',serif;font-size:18px;font-weight:500;letter-spacing:-0.02em;flex-shrink:0}
+.nav-logo span{color:var(--a)}
+.nav-prog{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;color:var(--cr3)}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{padding:5px 12px;border-radius:3px;border:none;background:transparent;color:var(--cr2);font-size:12px;font-weight:400;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;white-space:nowrap}
+.nav-tab:hover{color:var(--cr);background:rgba(237,232,223,0.05)}
+.nav-tab.active{background:var(--a);color:var(--n);font-weight:600}
+.nav-tab.ai-tab.active{background:var(--pu)}
+.nav-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.save-ind{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;color:var(--cr3);transition:color 0.3s}
+.save-ind.saving{color:var(--a)}
+.tier-badge{font-size:10px;color:var(--a);background:var(--ab);padding:2px 8px;border-radius:2px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em}
+.sign-out{background:transparent;border:1px solid var(--bd);color:var(--cr2);padding:4px 11px;border-radius:3px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif}
+.sign-out:hover{border-color:var(--bd2);color:var(--cr)}
+
+/* MAIN */
+.main{padding:24px;max-width:1400px;margin:0 auto}
+
+/* CARDS */
+.stat-grid{display:grid;gap:12px;margin-bottom:20px}
+.stat-card{background:var(--n2);border:1px solid var(--bd);border-radius:6px;padding:14px 16px;transition:border-color 0.2s}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--cr3);margin-bottom:8px}
+.stat-val{font-family:'Fraunces',serif;font-size:26px;font-weight:500;line-height:1}
+
+/* SECTION HEADER */
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px}
+.sec-title{font-family:'Fraunces',serif;font-size:20px;font-weight:500;letter-spacing:-0.01em}
+.sec-sub{font-size:12px;color:var(--cr2);margin-top:3px}
+.btn-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{border-radius:3px;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.15s;white-space:nowrap;border:none}
+.btn-primary{background:var(--a);color:var(--n);padding:7px 16px;font-size:12px;font-weight:600}
+.btn-primary:hover{background:var(--a2)}
+.btn-ghost{background:transparent;color:var(--cr2);border:1px solid var(--bd2);padding:6px 13px;font-size:11px}
+.btn-ghost:hover{border-color:var(--cr3);color:var(--cr)}
+.btn-ai{background:rgba(180,127,255,0.15);color:var(--pu);border:1px solid rgba(180,127,255,0.3);padding:6px 13px;font-size:11px;font-weight:600}
+.btn-ai:hover{background:rgba(180,127,255,0.25)}
+.btn-danger{background:rgba(255,107,107,0.1);color:var(--rd);border:1px solid rgba(255,107,107,0.2);padding:6px 13px;font-size:11px}
+.btn-danger:hover{background:rgba(255,107,107,0.18)}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+/* TABLE */
+.tbl-wrap{background:var(--n2);border:1px solid var(--bd);border-radius:6px;overflow:hidden}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--n3);padding:9px 12px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--cr3);font-weight:400;white-space:nowrap;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:2}
+tbody tr{border-bottom:1px solid var(--bd);transition:background 0.1s;cursor:pointer;position:relative}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(237,232,223,0.04)}
+tbody tr.editing{background:rgba(245,146,30,0.05);border-left:2px solid var(--a)}
+tbody tr.new-row{animation:slideIn 0.3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+tbody td{padding:10px 12px;vertical-align:middle;font-size:12px;color:var(--cr)}
+.td-mono{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cr3)}
+.td-name{font-weight:500}
+.td-sub{font-size:11px;color:var(--cr2);margin-top:2px;line-height:1.4}
+.td-actions{width:60px;text-align:right;opacity:0;transition:opacity 0.15s}
+tbody tr:hover .td-actions{opacity:1}
+.del-btn{background:none;border:none;color:var(--rd);cursor:pointer;padding:3px 6px;border-radius:3px;font-size:13px;opacity:0.7;transition:opacity 0.15s}
+.del-btn:hover{opacity:1;background:rgba(255,107,107,0.1)}
+.edit-btn{background:none;border:none;color:var(--cr3);cursor:pointer;padding:3px 6px;border-radius:3px;font-size:11px;transition:all 0.15s}
+.edit-btn:hover{color:var(--cr);background:rgba(237,232,223,0.08)}
+.empty-row td{padding:48px;text-align:center;color:var(--cr3);font-family:'Fraunces',serif;font-size:15px;font-style:italic}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500;white-space:nowrap}
+.pill-green{background:rgba(63,207,142,0.13);color:var(--gr)}
+.pill-amber{background:rgba(245,146,30,0.15);color:var(--a)}
+.pill-red{background:rgba(255,107,107,0.12);color:var(--rd)}
+.pill-yellow{background:rgba(255,209,102,0.13);color:var(--yl)}
+.pill-gray{background:rgba(237,232,223,0.08);color:var(--cr2)}
+.pill-purple{background:rgba(180,127,255,0.15);color:var(--pu)}
+
+/* FORM PANEL */
+.form-panel{background:var(--n3);border:1px solid var(--bd2);border-radius:6px;padding:22px;margin-top:14px;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.form-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.form-panel-title{font-family:'Fraunces',serif;font-size:16px;font-weight:500}
+.close-btn{background:none;border:none;color:var(--cr2);cursor:pointer;font-size:18px;padding:2px 6px;border-radius:3px}
+.close-btn:hover{background:rgba(237,232,223,0.08);color:var(--cr)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid .full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--cr2);display:flex;align-items:center;gap:6px}
+.auto-badge{background:var(--a);color:var(--n);font-size:8px;padding:1px 5px;border-radius:2px;letter-spacing:0.04em}
+.ai-badge-sm{background:var(--pu);color:var(--n);font-size:8px;padding:1px 5px;border-radius:2px;letter-spacing:0.04em}
+.field input,.field select,.field textarea{background:var(--n);border:1px solid var(--bd2);border-radius:3px;padding:8px 10px;color:var(--cr);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color 0.15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--a)}
+.field textarea{resize:vertical;min-height:64px}
+.field .auto-inp{background:var(--ab);border-color:rgba(245,146,30,0.2);font-style:italic;color:var(--a2)}
+.field-hint{font-size:10px;color:var(--cr3);font-style:italic}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--bd)}
+
+/* FILTERS */
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-btn{padding:4px 12px;border-radius:20px;border:1px solid var(--bd2);background:transparent;color:var(--cr2);font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+.filter-btn:hover{border-color:var(--cr3);color:var(--cr)}
+.filter-btn.active{background:var(--a);border-color:var(--a);color:var(--n)}
+.filter-count{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cr3)}
+
+/* PERSONA FILTERS */
+.persona-filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.pf-btn{padding:4px 12px;border-radius:20px;border:1px solid var(--bd2);background:transparent;color:var(--cr2);font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+.pf-btn.active{background:var(--a);border-color:var(--a);color:var(--n)}
+
+/* READINESS DOTS */
+.rdots{display:flex;gap:3px}
+.rdot{width:9px;height:9px;border-radius:2px;background:rgba(237,232,223,0.1)}
+.rdot.on{background:var(--a)}
+
+/* BAR */
+.bar-wrap{background:rgba(237,232,223,0.08);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width 0.4s ease}
+
+/* HEATMAP */
+.hmap{border-collapse:collapse;width:100%}
+.hmap th,.hmap td{border:2px solid var(--n);text-align:center;padding:0}
+.hmap thead th{background:var(--n3);color:var(--cr2);padding:9px 8px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;font-weight:400}
+.hmap thead th:first-child{text-align:left;padding:9px 14px;width:170px}
+.hmap tbody th{background:var(--n3);text-align:left;padding:10px 14px;color:var(--cr);font-weight:500;font-size:12px;font-family:'Inter',sans-serif;white-space:nowrap}
+.hmap td{height:42px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600}
+.h0{background:rgba(237,232,223,0.04);color:var(--cr3)}
+.h1{background:rgba(245,146,30,0.15);color:rgba(245,146,30,0.8)}
+.h2{background:rgba(245,146,30,0.33);color:var(--a)}
+.h3{background:rgba(245,146,30,0.62);color:var(--cr)}
+.h4{background:var(--a);color:var(--n)}
+
+/* AI EXTRACT */
+.ai-panel{background:rgba(180,127,255,0.06);border:1px solid rgba(180,127,255,0.25);border-radius:6px;padding:20px;margin-bottom:16px;animation:fadeIn 0.2s ease}
+.ai-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.ai-panel-title{font-family:'Fraunces',serif;font-size:16px;font-weight:500;color:var(--cr);display:flex;align-items:center;gap:8px}
+.drop-zone{border:2px dashed rgba(180,127,255,0.3);border-radius:6px;padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:12px}
+.drop-zone:hover,.drop-zone.over{border-color:var(--pu);background:rgba(180,127,255,0.06)}
+.drop-zone-icon{font-size:28px;margin-bottom:8px}
+.drop-zone-text{font-size:13px;color:var(--cr2)}
+.drop-zone-hint{font-size:10px;color:var(--cr3);margin-top:4px;font-family:'JetBrains Mono',monospace}
+.char-count{font-size:11px;color:var(--cr3);font-family:'JetBrains Mono',monospace;margin-bottom:8px}
+.char-count.ok{color:var(--gr)}
+.char-count.warn{color:var(--yl)}
+.extract-btn{background:var(--pu);color:var(--n);border:none;padding:9px 24px;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;display:flex;align-items:center;gap:8px}
+.extract-btn:hover{background:#c99fff}
+.extract-btn:disabled{opacity:0.5;cursor:not-allowed}
+.extract-btn .spinner{width:14px;height:14px;border:2px solid rgba(7,16,31,0.3);border-top-color:var(--n);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-bar{height:3px;background:rgba(180,127,255,0.2);border-radius:2px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;background:var(--pu);border-radius:2px;transition:width 0.4s ease}
+
+/* RESULTS TABLE */
+.results-section{margin-top:14px}
+.results-tabs{display:flex;gap:2px;background:var(--n3);border:1px solid var(--bd);border-radius:6px;padding:3px;width:fit-content;margin-bottom:12px}
+.results-tab{padding:5px 14px;border-radius:4px;border:none;background:transparent;color:var(--cr2);font-size:11px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+.results-tab.active{background:var(--pu);color:var(--n)}
+.result-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--n3);border-radius:4px;margin-bottom:6px;border:1px solid transparent;transition:all 0.15s;cursor:pointer}
+.result-row:hover{border-color:var(--bd2)}
+.result-row.selected{border-color:var(--pu);background:rgba(180,127,255,0.08)}
+.result-check{width:16px;height:16px;border-radius:3px;border:2px solid var(--bd2);background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all 0.15s;font-size:10px;color:var(--n)}
+.result-row.selected .result-check{background:var(--pu);border-color:var(--pu)}
+.result-content{flex:1;min-width:0}
+.result-title{font-size:12px;font-weight:500;color:var(--cr)}
+.result-meta{font-size:11px;color:var(--cr2);margin-top:3px;line-height:1.5}
+.result-pills{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.add-selected-btn{background:var(--pu);color:var(--n);border:none;padding:9px 22px;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:12px}
+.add-selected-btn:hover{background:#c99fff}
+.summary-box{background:var(--n3);border-left:3px solid var(--pu);border-radius:0 4px 4px 0;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--cr2);line-height:1.7}
+.summary-box strong{color:var(--cr)}
+
+/* DASHBOARD */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.dash-card{background:var(--n2);border:1px solid var(--bd);border-radius:6px;padding:16px 18px}
+.bar-row{display:grid;grid-template-columns:120px 1fr 30px;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{font-size:12px;color:var(--cr2)}
+.bar-val{font-family:'JetBrains Mono',monospace;font-size:11px;text-align:right}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:4px;font-size:12px;font-weight:600;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.4);animation:toastIn 0.3s ease;max-width:340px;line-height:1.5}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.login-card{background:var(--n2);border:1px solid var(--bd2);border-radius:8px;padding:32px;width:100%;max-width:360px}
+
+/* VIEW TABS */
+.view-tabs{display:flex;gap:3px;background:var(--n3);border:1px solid var(--bd);border-radius:6px;padding:3px;width:fit-content;margin-bottom:16px}
+.view-tab{padding:5px 16px;border-radius:4px;border:none;background:transparent;color:var(--cr2);font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+.view-tab.active{background:var(--a);color:var(--n)}
+
+/* INLINE EDIT */
+.inline-edit{display:none;padding:12px;background:var(--n3);border-top:1px solid var(--bd)}
+.inline-edit.open{display:block;animation:fadeIn 0.15s ease}
+.inline-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.inline-grid .full{grid-column:1/-1}
+.inline-field{display:flex;flex-direction:column;gap:4px}
+.inline-label{font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--cr3)}
+.inline-inp{background:var(--n);border:1px solid var(--bd2);border-radius:3px;padding:6px 8px;color:var(--cr);font-family:'Inter',sans-serif;font-size:12px;outline:none;width:100%}
+.inline-inp:focus{border-color:var(--a)}
+.inline-sel{background:var(--n);border:1px solid var(--bd2);border-radius:3px;padding:6px 8px;color:var(--cr);font-family:'Inter',sans-serif;font-size:12px;outline:none;width:100%;cursor:pointer}
+.inline-actions{display:flex;gap:8px;margin-top:10px;justify-content:flex-end}
+</style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const {useState,useEffect,useMemo}=React;
-const APP_PASSWORD='shift-studio';
-const PROGRAMME_NAME='Your Programme';
-const CONTACT_EMAIL='shiftaichange@gmail.com';
-const SITE_URL='shift-ai-change.co.uk';
-const N='#07101F',N2='#0C1A30',N3='#122040';
-const A='#F5921E',AB='rgba(245,146,30,0.12)';
-const CR='#EDE8DF',CR2='rgba(237,232,223,0.65)',CR3='rgba(237,232,223,0.28)';
-const BD='rgba(237,232,223,0.1)',BD2='rgba(237,232,223,0.2)';
-const GR='#3FCF8E',RD='#FF6B6B',YL='#FFD166',PU='#B47FFF';
-const KEYS={cia:'s-cia',sh:'s-sh',act:'s-act',sess:'s-sess'};
-function load(k,fb){try{const r=localStorage.getItem(k);return r?JSON.parse(r):fb;}catch{return fb;}}
-function persist(k,d){try{localStorage.setItem(k,JSON.stringify(d));}catch(e){}}
-function nid(items,pfx){const n=items.map(i=>parseInt((i.id||'').replace(/\D/g,''))||0);return pfx+'-'+String((n.length?Math.max(...n):0)+1).padStart(3,'0');}
-const S_CIA=[{id:'CIA-001',processArea:'Finance',subProcess:'Accounts Payable',description:'AI-driven invoice matching replaces manual 3-way match',changeType:'Process change',affectedRoles:'AP Clerks, Finance Managers',impactLevel:'High',benefits:'70% reduction in processing time',fuel:'Team keen to reduce repetitive work',friction:'Job security fears',status:'Confirmed'},{id:'CIA-002',processArea:'Operations',subProcess:'Planning & Forecasting',description:'ML forecasting replaces Excel-based demand planning',changeType:'Process change',affectedRoles:'Supply Chain Planners',impactLevel:'Critical',benefits:'Forecast accuracy improves from 68% to 91%',fuel:'Planners frustrated with current tools',friction:'High Excel dependency',status:'Confirmed'}];
-const S_SH=[{id:'SH-001',name:'Programme Leadership',jobTitle:'Director / VP',persona:'Programme Leadership',site:'HQ',population:5,readiness:4,sentiment:'Positive',influence:'High',impactLevel:'High',isAdvocate:true,notes:'Active sponsors'},{id:'SH-002',name:'End Users Finance',jobTitle:'AP Clerks',persona:'End Users',site:'Regional Office',population:40,readiness:2,sentiment:'Resistant',influence:'Low',impactLevel:'Critical',isAdvocate:false,notes:'Job security concerns'}];
-const S_ACT=[{id:'A-001',title:'AI Readiness Briefing',description:'Align leadership on programme scope',ciaLink:'CIA-001',audience:'Programme Leadership',channel:'Town Hall',owner:'Programme Director',reviewer:'Sponsor',status:'Complete',publishDate:'',impactLevel:'High'},{id:'A-002',title:'End User Comms Finance',description:'Communicate AP process changes',ciaLink:'CIA-001',audience:'End Users',channel:'Workshop',owner:'Change Lead',reviewer:'HR Business Partner',status:'Not started',publishDate:'',impactLevel:'Critical'}];
-const PERSONAS=['Programme Leadership','MC/EO Leadership','Process Owners','Change Advocates','Super Users','End Users'];
-const SUGGEST={'Programme Leadership':{owner:'Programme Director',channel:'Town Hall',reviewer:'Sponsor'},'MC/EO Leadership':{owner:'Programme Director',channel:'Briefing note',reviewer:'Programme Sponsor'},'Process Owners':{owner:'Change Lead',channel:'Workshop',reviewer:'Process Lead'},'Change Advocates':{owner:'Comms Manager',channel:'Teams channel',reviewer:'Change Lead'},'Super Users':{owner:'Training Lead',channel:'In-person training',reviewer:'Change Lead'},'End Users':{owner:'Comms Manager',channel:'Email',reviewer:'HR Business Partner'}};
-const ST_MAP={Complete:[GR,'rgba(63,207,142,0.13)'],Confirmed:[GR,'rgba(63,207,142,0.13)'],'In progress':[A,'rgba(245,146,30,0.15)'],Draft:[YL,'rgba(255,209,102,0.13)'],'Not started':[RD,'rgba(255,107,107,0.12)'],'On hold':[CR2,'rgba(237,232,223,0.08)'],Closed:[CR2,'rgba(237,232,223,0.08)']};
-const IM_MAP={Critical:[A,'rgba(245,146,30,0.15)'],High:[YL,'rgba(255,209,102,0.12)'],Medium:[GR,'rgba(63,207,142,0.12)'],Low:[CR2,'rgba(237,232,223,0.08)']};
-const SN_MAP={Positive:[GR,'rgba(63,207,142,0.12)'],Neutral:[YL,'rgba(255,209,102,0.1)'],Resistant:[RD,'rgba(255,107,107,0.12)'],Unknown:[CR2,'rgba(237,232,223,0.08)']};
+<div id="app"></div>
+<script type="module">
 
-async function readFileAsText(file){return new Promise((res,rej)=>{const ext=file.name.split('.').pop().toLowerCase();if(ext==='docx'){const r=new FileReader();r.onload=async e=>{try{const x=await mammoth.extractRawText({arrayBuffer:e.target.result});res(x.value);}catch(err){rej(err);}};r.readAsArrayBuffer(file);}else if(ext==='xlsx'||ext==='xls'){const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'binary'});let t='';wb.SheetNames.forEach(n=>{const ws=wb.Sheets[n];t+=XLSX.utils.sheet_to_json(ws,{header:1}).map(r=>r.join('\t')).join('\n')+'\n';});res(t);}catch(err){rej(err);}};r.readAsBinaryString(file);}else{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsText(file);}});}
+// ── CONFIG ──────────────────────────────────────────────────────────────
+const CFG = {
+  password: 'shift-studio',
+  programme: 'Your Programme',
+  email: 'shiftaichange@gmail.com',
+  site: 'shift-ai-change.co.uk',
+  chunkSize: 14000,   // chars per API chunk
+  maxChunks: 4        // max chunks to process (56k chars total)
+};
 
-async function extractWithClaude(text,focus){
-  const prompt='You are a change management expert. Analyse this document and extract structured data.\n\nReturn ONLY valid JSON:\n{\n"summary":"2-3 sentence summary",\n"cia_entries":[{"processArea":"","subProcess":"","description":"","changeType":"Process change","affectedRoles":"","impactLevel":"Medium","benefits":"","fuel":"","friction":"","status":"Draft"}],\n"stakeholders":[{"name":"","jobTitle":"","persona":"End Users","site":"","population":1,"readiness":3,"sentiment":"Unknown","influence":"Medium","impactLevel":"Medium","isAdvocate":false,"notes":""}],\n"activities":[{"title":"","description":"","audience":"End Users","channel":"","owner":"","reviewer":"","status":"Not started","publishDate":"","impactLevel":"Medium","ciaLink":""}]\n}\n\nOnly include entries with enough info. Return [] if nothing found.\n\nDocument:\n'+text.slice(0,12000);
-  const resp=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
-  if(!resp.ok){const e=await resp.text();throw new Error('Function error '+resp.status+': '+e);}
-  const data=await resp.json();
-  if(data.error)throw new Error(data.error);
-  const raw=data.content.map(c=>c.text||'').join('');
-  const clean=raw.replace(/```json|```/g,'').trim();
-  return JSON.parse(clean);
+// ── STORAGE ──────────────────────────────────────────────────────────────
+const K = {cia:'sc-cia',sh:'sc-sh',act:'sc-act',sess:'sc-sess'};
+const load = (k,fb) => { try{const r=localStorage.getItem(k);return r?JSON.parse(r):fb;}catch{return fb;} };
+const save = (k,d) => { try{localStorage.setItem(k,JSON.stringify(d));}catch{} };
+const nid = (items,pfx) => { const n=items.map(i=>parseInt((i.id||'').replace(/\D/g,''))||0); return `${pfx}-${String((n.length?Math.max(...n):0)+1).padStart(3,'0')}`; };
+
+// ── SAMPLE DATA ──────────────────────────────────────────────────────────
+const SAMPLE_CIA = [
+  {id:'CIA-001',processArea:'Finance',subProcess:'Accounts Payable',description:'AI invoice matching replaces manual 3-way match',changeType:'Process change',affectedRoles:'AP Clerks, Finance Managers',impactLevel:'High',benefits:'70% reduction in processing time',fuel:'Team keen to reduce repetitive work',friction:'Job security fears',status:'Confirmed'},
+  {id:'CIA-002',processArea:'Operations',subProcess:'Planning & Forecasting',description:'ML forecasting replaces Excel demand planning',changeType:'Process change',affectedRoles:'Supply Chain Planners, Ops Directors',impactLevel:'Critical',benefits:'Forecast accuracy from 68% to 91%',fuel:'Planners frustrated with current tools',friction:'High Excel dependency',status:'Confirmed'},
+];
+const SAMPLE_SH = [
+  {id:'SH-001',name:'Programme Leadership',jobTitle:'Director / VP',persona:'Programme Leadership',site:'London HQ',population:5,readiness:4,sentiment:'Positive',influence:'High',impactLevel:'High',isAdvocate:true,notes:'Active sponsors'},
+  {id:'SH-002',name:'AP Finance Team',jobTitle:'AP Clerks',persona:'End Users',site:'Manchester',population:42,readiness:2,sentiment:'Resistant',influence:'Low',impactLevel:'Critical',isAdvocate:false,notes:'Job security concerns — priority group'},
+];
+const SAMPLE_ACT = [
+  {id:'A-001',title:'AI Readiness Executive Briefing',description:'Align leadership on programme scope and impact',ciaLink:'CIA-001',audience:'Programme Leadership',channel:'Town Hall',owner:'Programme Director',reviewer:'Sponsor',status:'Complete',publishDate:'',impactLevel:'High'},
+  {id:'A-002',title:'End User Comms — Finance Changes',description:'Address AP process changes and job security concerns',ciaLink:'CIA-001',audience:'End Users',channel:'Workshop',owner:'Change Lead',reviewer:'HR Business Partner',status:'Not started',publishDate:'',impactLevel:'Critical'},
+];
+
+// ── LOOKUPS ──────────────────────────────────────────────────────────────
+const PERSONAS = ['Programme Leadership','MC/EO Leadership','Process Owners','Change Advocates','Super Users','End Users'];
+const SUGGEST = {
+  'Programme Leadership': {owner:'Programme Director',channel:'Town Hall / Executive briefing',reviewer:'Sponsoring Partner'},
+  'MC/EO Leadership': {owner:'Programme Director',channel:'Leadership briefing note',reviewer:'Programme Sponsor'},
+  'Process Owners': {owner:'Change Lead',channel:'Working session / Workshop',reviewer:'Process Design Lead'},
+  'Change Advocates': {owner:'Comms Manager',channel:'Teams channel',reviewer:'Change Lead'},
+  'Super Users': {owner:'Training Lead',channel:'In-person training',reviewer:'Change Lead'},
+  'End Users': {owner:'Comms Manager',channel:'Email / Intranet',reviewer:'HR Business Partner'},
+};
+const ST_COLOR = {
+  'Complete':'pill-green','Confirmed':'pill-green',
+  'In progress':'pill-amber','Draft':'pill-yellow',
+  'Not started':'pill-red','On hold':'pill-gray','Closed':'pill-gray'
+};
+const IM_COLOR = {Critical:'pill-amber',High:'pill-yellow',Medium:'pill-green',Low:'pill-gray'};
+const SN_COLOR = {Positive:'pill-green',Neutral:'pill-yellow',Resistant:'pill-red',Unknown:'pill-gray'};
+
+// ── FILE READING ──────────────────────────────────────────────────────────
+async function readFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'docx') {
+    const buf = await file.arrayBuffer();
+    const r = await mammoth.extractRawText({arrayBuffer: buf});
+    return r.value;
+  }
+  if (ext === 'xlsx' || ext === 'xls') {
+    return new Promise(res => {
+      const r = new FileReader();
+      r.onload = e => {
+        const wb = XLSX.read(e.target.result, {type:'binary'});
+        let t = '';
+        wb.SheetNames.forEach(n => {
+          const rows = XLSX.utils.sheet_to_json(wb.Sheets[n], {header:1});
+          t += rows.map(r => r.join('\t')).join('\n') + '\n\n';
+        });
+        res(t);
+      };
+      r.readAsBinaryString(file);
+    });
+  }
+  // txt / csv / other
+  return file.text();
 }
 
-function getCol(row,names){const keys=Object.keys(row);for(const name of names){const n=name.toLowerCase().replace(/[\s_\-\/()]/g,'');const m=keys.find(k=>k.toLowerCase().replace(/[\s_\-\/()]/g,'')===n);if(m!==undefined&&String(row[m]).trim())return String(row[m]).trim();}return'';}
-function importXL(file,onRows){const r=new FileReader();r.onload=ev=>{try{const wb=XLSX.read(ev.target.result,{type:'binary'});const ws=wb.Sheets[wb.SheetNames[0]];onRows(XLSX.utils.sheet_to_json(ws,{defval:''}));}catch(e){alert('Could not read file.');}};r.readAsBinaryString(file);}
-function exportXL(data,filename){const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Data');XLSX.writeFile(wb,filename);}
-function pickFile(accept,onFile){const inp=document.createElement('input');inp.type='file';inp.accept=accept;inp.onchange=e=>{if(e.target.files[0])onFile(e.target.files[0]);};inp.click();}
-const mapCIA=r=>({processArea:getCol(r,['processarea','process area','process']),subProcess:getCol(r,['subprocess','sub process']),description:getCol(r,['description','desc']),changeType:getCol(r,['changetype','type'])||'Process change',affectedRoles:getCol(r,['affectedroles','roles']),impactLevel:getCol(r,['impactlevel','impact'])||'Medium',benefits:getCol(r,['benefits']),fuel:getCol(r,['fuel']),friction:getCol(r,['friction']),status:getCol(r,['status'])||'Draft'});
-const mapSH=r=>({name:getCol(r,['name','stakeholder','group']),jobTitle:getCol(r,['jobtitle','role','title']),persona:getCol(r,['persona','type'])||'End Users',site:getCol(r,['site','location']),population:parseInt(getCol(r,['population','headcount']))||1,readiness:parseInt(getCol(r,['readiness']))||3,sentiment:getCol(r,['sentiment'])||'Unknown',influence:getCol(r,['influence'])||'Medium',impactLevel:getCol(r,['impactlevel','impact'])||'Medium',isAdvocate:['yes','true','y','1'].includes(String(getCol(r,['advocate'])).toLowerCase()),notes:getCol(r,['notes','comments'])});
-const mapAct=r=>({title:getCol(r,['title','activity','name']),description:getCol(r,['description','desc']),ciaLink:getCol(r,['cialink','cia']),audience:getCol(r,['audience']),channel:getCol(r,['channel']),owner:getCol(r,['owner','lead']),reviewer:getCol(r,['reviewer']),status:getCol(r,['status'])||'Not started',publishDate:getCol(r,['publishdate','date']),impactLevel:getCol(r,['impactlevel','impact'])||'Medium'});
+// ── CLAUDE API (chunked) ──────────────────────────────────────────────────
+async function callClaude(text, onProgress) {
+  const chunks = [];
+  for (let i = 0; i < text.length && chunks.length < CFG.maxChunks; i += CFG.chunkSize) {
+    chunks.push(text.slice(i, i + CFG.chunkSize));
+  }
 
-const card={background:N2,border:'1px solid '+BD,borderRadius:6,padding:'16px 18px'};
-const inp={background:N,border:'1px solid '+BD2,borderRadius:3,padding:'8px 11px',color:CR,fontFamily:'Inter,sans-serif',fontSize:13,width:'100%',boxSizing:'border-box',outline:'none'};
-const th={background:N3,padding:'10px 12px',textAlign:'left',fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.08em',textTransform:'uppercase',color:CR3,fontWeight:400,whiteSpace:'nowrap',borderBottom:'1px solid '+BD};
-const td={padding:'11px 12px',verticalAlign:'middle',borderBottom:'1px solid '+BD,fontSize:12,color:CR};
-const lbl={fontSize:11,fontWeight:600,letterSpacing:'0.05em',textTransform:'uppercase',color:CR2,display:'block',marginBottom:5};
+  const prompt = (chunk, idx, total) => `You are a change management expert analysing a document${total>1?` (part ${idx+1} of ${total})`:''}.\n\nExtract ALL change management data found. Return ONLY valid JSON, no markdown:\n{\n  "summary": "${idx===0?'2-3 sentence document summary':''}",\n  "cia_entries": [{\n    "processArea": "",\n    "subProcess": "",\n    "description": "what is changing and impact on people",\n    "changeType": "Process change|Role change|Technology|Policy|Other",\n    "affectedRoles": "comma separated",\n    "impactLevel": "Low|Medium|High|Critical",\n    "benefits": "",\n    "fuel": "what motivates adoption",\n    "friction": "barriers and resistance",\n    "status": "Draft"\n  }],\n  "stakeholders": [{\n    "name": "group name",\n    "jobTitle": "",\n    "persona": "Programme Leadership|MC/EO Leadership|Process Owners|Change Advocates|Super Users|End Users",\n    "site": "",\n    "population": 1,\n    "readiness": 3,\n    "sentiment": "Positive|Neutral|Resistant|Unknown",\n    "influence": "High|Medium|Low",\n    "impactLevel": "Critical|High|Medium|Low",\n    "isAdvocate": false,\n    "notes": ""\n  }],\n  "activities": [{\n    "title": "",\n    "description": "",\n    "audience": "Programme Leadership|MC/EO Leadership|Process Owners|Change Advocates|Super Users|End Users",\n    "channel": "",\n    "owner": "",\n    "reviewer": "",\n    "status": "Not started",\n    "publishDate": "",\n    "impactLevel": "Critical|High|Medium|Low",\n    "ciaLink": ""\n  }]\n}\n\nExtract everything — be thorough. Population=1 if unknown. Return [] if nothing found.\n\nDocument:\n${chunk}`;
 
-const Pill=({v,map})=>{const[c,bg]=(map||{})[v]||[CR2,'rgba(237,232,223,0.08)'];return React.createElement('span',{style:{display:'inline-block',padding:'2px 9px',borderRadius:10,fontSize:10,fontWeight:500,color:c,background:bg,whiteSpace:'nowrap'}},v||'—');};
-const Bar=({pct,color,height})=>React.createElement('div',{style:{background:'rgba(237,232,223,0.08)',borderRadius:3,overflow:'hidden',height:height||6}},React.createElement('div',{style:{width:Math.min(100,pct)+'%',height:'100%',background:color||A,borderRadius:3}}));
-const Toast=({msg,color})=>msg?React.createElement('div',{style:{position:'fixed',bottom:24,right:24,background:color||GR,color:N,padding:'10px 18px',borderRadius:4,fontSize:12,fontWeight:600,zIndex:999,boxShadow:'0 4px 16px rgba(0,0,0,0.3)',maxWidth:320}},msg):null;
+  const results = {summary:'', cia_entries:[], stakeholders:[], activities:[]};
 
-function Btn({children,filled,sm,ai,onClick,style}){return React.createElement('button',{onClick,style:{background:ai?'rgba(180,127,255,0.15)':filled?A:'transparent',color:ai?PU:filled?N:CR2,border:ai?'1px solid rgba(180,127,255,0.3)':filled?'none':'1px solid '+BD2,padding:sm?'5px 11px':'7px 16px',borderRadius:3,fontSize:sm?11:12,fontWeight:filled||ai?600:400,cursor:'pointer',fontFamily:'Inter,sans-serif',...(style||{})}},children);}
-function FInp({value,onChange,placeholder,type,auto}){return React.createElement('input',{type:type||'text',value:value||'',onChange:e=>onChange&&onChange(e.target.value),placeholder,style:{...inp,background:auto?AB:N,borderColor:auto?'rgba(245,146,30,0.25)':BD2,fontStyle:auto?'italic':'normal',color:auto?'#FFB347':CR}});}
-function FSel({value,onChange,options}){return React.createElement('select',{value:String(value||''),onChange:e=>onChange(e.target.value),style:{...inp,cursor:'pointer'}},options.map(o=>React.createElement('option',{key:o.value||o,value:o.value||o},o.label||o)));}
-function FTxt({value,onChange,placeholder,rows}){return React.createElement('textarea',{value:value||'',onChange:e=>onChange(e.target.value),placeholder,rows:rows||3,style:{...inp,resize:'vertical'}});}
-function F({label,auto,children,full}){return React.createElement('div',{style:{display:'flex',flexDirection:'column',gridColumn:full?'1/-1':undefined}},React.createElement('label',{style:lbl},label,auto&&React.createElement('span',{style:{display:'inline-block',fontFamily:'JetBrains Mono,monospace',fontSize:9,background:A,color:N,padding:'1px 5px',borderRadius:2,marginLeft:6,letterSpacing:'0.04em',verticalAlign:'middle'}},'AUTO')),children);}
-function DeleteX({onClick}){return React.createElement('span',{onClick:e=>{e.stopPropagation();onClick();},style:{color:RD,cursor:'pointer',fontSize:13,opacity:0.6,padding:'0 4px'}},'✕');}
-
-function SectionHead({title,sub,onAdd,onExport,onImport,onAI}){
-  return React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:20}},
-    React.createElement('div',null,
-      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:22,fontWeight:500,color:CR,letterSpacing:'-0.01em'}},title),
-      sub&&React.createElement('div',{style:{fontSize:12,color:CR2,marginTop:3}},sub)
-    ),
-    React.createElement('div',{style:{display:'flex',gap:8}},
-      onAI&&React.createElement(Btn,{sm:true,ai:true,onClick:onAI},'✦ AI Extract'),
-      onImport&&React.createElement(Btn,{sm:true,onClick:onImport},'↑ Import Excel'),
-      onExport&&React.createElement(Btn,{sm:true,onClick:onExport},'↓ Export Excel'),
-      onAdd&&React.createElement(Btn,{filled:true,onClick:onAdd},'+ Add new')
-    )
-  );
+  for (let i = 0; i < chunks.length; i++) {
+    onProgress && onProgress(Math.round((i / chunks.length) * 85));
+    const resp = await fetch('/.netlify/functions/claude', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 4000,
+        messages: [{role:'user', content: prompt(chunks[i], i, chunks.length)}]
+      })
+    });
+    if (!resp.ok) throw new Error(`Function error ${resp.status}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(typeof data.error === 'string' ? data.error : (data.error?.message || JSON.stringify(data.error)));
+    const raw = data.content?.map(c=>c.text||'').join('') || '';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    if (i === 0 && parsed.summary) results.summary = parsed.summary;
+    results.cia_entries.push(...(parsed.cia_entries||[]));
+    results.stakeholders.push(...(parsed.stakeholders||[]));
+    results.activities.push(...(parsed.activities||[]));
+  }
+  onProgress && onProgress(100);
+  return results;
 }
 
-function FormWrap({title,onClose,children,onSubmit,submitLabel}){
-  return React.createElement('div',{style:{background:N3,border:'1px solid '+BD2,borderRadius:6,padding:24,marginTop:16}},
-    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}},
-      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:17,fontWeight:500,color:CR}},title),
-      React.createElement('button',{onClick:onClose,style:{background:'transparent',border:'none',color:CR2,cursor:'pointer',fontSize:18}},'✕')
-    ),
-    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}},children),
-    React.createElement('div',{style:{display:'flex',justifyContent:'flex-end',gap:10,marginTop:18}},
-      React.createElement(Btn,{onClick:onClose},'Cancel'),
-      React.createElement(Btn,{filled:true,onClick:onSubmit},submitLabel)
-    )
-  );
+// ── EXCEL EXPORT ──────────────────────────────────────────────────────────
+function exportXL(data, filename) {
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Data');
+  XLSX.writeFile(wb, filename);
 }
 
-function AIPanel({onExtract,setToast,inline}){
-  const[open,setOpen]=useState(!inline);
-  const[text,setText]=useState('');
-  const[loading,setLoading]=useState(false);
-  const[dragOver,setDragOver]=useState(false);
-  const run=async t=>{
-    if(!t.trim())return alert('Paste text or upload a file first.');
-    setLoading(true);
-    try{
-      const r=await extractWithClaude(t,'all');
-      onExtract(r);
-      if(inline){setOpen(false);setText('');}
-      const c=[];
-      if(r.cia_entries?.length)c.push(r.cia_entries.length+' CIA');
-      if(r.stakeholders?.length)c.push(r.stakeholders.length+' stakeholders');
-      if(r.activities?.length)c.push(r.activities.length+' activities');
-      setToast('✦ Extracted: '+(c.join(', ')||'no data found'));
-      setTimeout(()=>setToast(''),4000);
-    }catch(e){
-      setToast('⚠ '+e.message);
-      setTimeout(()=>setToast(''),6000);
-    }
-    setLoading(false);
-  };
-  const handleFile=async f=>{setLoading(true);try{const t=await readFileAsText(f);setText(t);}catch(e){alert('Could not read file.');}setLoading(false);};
-  const handleDrop=e=>{e.preventDefault();setDragOver(false);const f=e.dataTransfer.files[0];if(f)handleFile(f);};
-  if(inline&&!open)return React.createElement(Btn,{sm:true,ai:true,onClick:()=>setOpen(true)},'✦ AI Extract from document');
-  return React.createElement('div',{style:{background:N3,border:'1px solid rgba(180,127,255,0.3)',borderRadius:6,padding:20,marginTop:inline?16:0}},
-    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
-      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:16,fontWeight:500,color:CR}},'✦ AI Document Extraction'),
-      inline&&React.createElement('button',{onClick:()=>{setOpen(false);setText('');},style:{background:'transparent',border:'none',color:CR2,cursor:'pointer',fontSize:18}},'✕')
-    ),
-    React.createElement('div',{
-      onDrop:handleDrop,
-      onDragOver:e=>{e.preventDefault();setDragOver(true);},
-      onDragLeave:()=>setDragOver(false),
-      onClick:()=>pickFile('.txt,.docx,.xlsx,.xls,.csv',handleFile),
-      style:{border:'2px dashed '+(dragOver?PU:BD2),borderRadius:6,padding:16,marginBottom:12,textAlign:'center',cursor:'pointer',background:dragOver?'rgba(180,127,255,0.05)':N}
-    },
-      React.createElement('div',{style:{fontSize:24,marginBottom:6}},'📄'),
-      React.createElement('div',{style:{fontSize:12,color:CR2}},'Drop file or click to browse'),
-      React.createElement('div',{style:{fontSize:11,color:CR3,marginTop:4,fontFamily:'JetBrains Mono,monospace'}},'.txt .docx .xlsx .csv')
-    ),
-    React.createElement('textarea',{value:text,onChange:e=>setText(e.target.value),placeholder:'Or paste transcript, process map, meeting notes or any text here…',rows:5,style:{...inp,resize:'vertical',marginBottom:8}}),
-    text&&React.createElement('div',{style:{fontSize:11,color:CR3,fontFamily:'JetBrains Mono,monospace',marginBottom:8}},text.length.toLocaleString()+' characters loaded'),
-    React.createElement('div',{style:{display:'flex',gap:10,justifyContent:'flex-end'}},
-      inline&&React.createElement(Btn,{onClick:()=>{setOpen(false);setText('');}}, 'Cancel'),
-      React.createElement('button',{onClick:()=>run(text),disabled:loading||!text,style:{background:PU,color:N,border:'none',padding:'8px 20px',borderRadius:3,fontSize:12,fontWeight:600,cursor:loading||!text?'not-allowed':'pointer',fontFamily:'Inter,sans-serif',opacity:loading||!text?0.6:1}},loading?'Extracting…':'✦ Extract with AI')
-    )
-  );
+// ── UI HELPERS ────────────────────────────────────────────────────────────
+const pill = (v, map) => `<span class="pill ${map[v]||'pill-gray'}">${v||'—'}</span>`;
+const bar = (pct, color, h=6) => `<div class="bar-wrap" style="height:${h}px"><div class="bar-fill" style="width:${Math.min(100,pct)}%;height:100%;background:${color}"></div></div>`;
+const rdots = (n) => Array.from({length:5},(_,i)=>`<div class="rdot ${i<n?'on':''}"></div>`).join('');
+
+let toast_timer;
+function showToast(msg, color='#3FCF8E') {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.background = color;
+  el.style.display = 'block';
+  clearTimeout(toast_timer);
+  toast_timer = setTimeout(() => el.style.display='none', 4000);
 }
 
-function AITab({cias,setCias,stakeholders,setStakeholders,activities,setActivities,setToast}){
-  const[result,setResult]=useState(null);
-  const[sel,setSel]=useState({cia:true,sh:true,act:true});
-  const apply=()=>{
-    const added=[];
-    if(sel.cia&&result.cia_entries?.length){setCias(p=>{const n=[...p,...result.cia_entries.map((r,i)=>({...r,id:nid([...p,...result.cia_entries.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});added.push(result.cia_entries.length+' CIA');}
-    if(sel.sh&&result.stakeholders?.length){setStakeholders(p=>{const n=[...p,...result.stakeholders.map((r,i)=>({...r,id:nid([...p,...result.stakeholders.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});added.push(result.stakeholders.length+' stakeholders');}
-    if(sel.act&&result.activities?.length){setActivities(p=>{const n=[...p,...result.activities.map((r,i)=>({...r,id:nid([...p,...result.activities.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});added.push(result.activities.length+' activities');}
-    setToast('✦ Added '+added.join(', '));setTimeout(()=>setToast(''),4000);setResult(null);
-  };
-  const onExtract=r=>setResult(r);
-  return React.createElement('div',null,
-    React.createElement('div',{style:{marginBottom:24}},
-      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:22,fontWeight:500,color:CR,letterSpacing:'-0.01em',marginBottom:4}},'✦ AI Document Extraction'),
-      React.createElement('div',{style:{fontSize:12,color:CR2}},'Upload any document — transcript, process map, workshop output — AI extracts change data automatically')
-    ),
-    React.createElement(AIPanel,{onExtract,setToast,inline:false}),
-    result&&React.createElement('div',{style:{...card,borderColor:'rgba(180,127,255,0.3)',background:'rgba(180,127,255,0.04)',marginTop:16}},
-      React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:PU,marginBottom:12}},'✦ Extraction complete — review before adding'),
-      result.summary&&React.createElement('div',{style:{fontSize:13,color:CR2,lineHeight:1.7,marginBottom:20,padding:'12px 16px',background:N3,borderRadius:4,borderLeft:'3px solid '+PU}},React.createElement('strong',{style:{color:CR}},'Summary: '),result.summary),
-      React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:20}},
-        [['cia',(result.cia_entries?.length||0)+' CIA entries',result.cia_entries?.length>0],['sh',(result.stakeholders?.length||0)+' stakeholders',result.stakeholders?.length>0],['act',(result.activities?.length||0)+' activities',result.activities?.length>0]].map(([key,label,hasData])=>
-          React.createElement('div',{key,onClick:()=>hasData&&setSel(p=>({...p,[key]:!p[key]})),style:{...card,borderColor:sel[key]&&hasData?PU:BD,background:sel[key]&&hasData?'rgba(180,127,255,0.1)':N2,cursor:hasData?'pointer':'default',opacity:hasData?1:0.4}},
-            React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8}},
-              React.createElement('div',{style:{width:16,height:16,borderRadius:3,border:'2px solid '+(sel[key]&&hasData?PU:BD2),background:sel[key]&&hasData?PU:'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:N,flexShrink:0}},sel[key]&&hasData?'✓':''),
-              React.createElement('div',{style:{fontSize:12,fontWeight:500,color:CR}},label)
-            )
-          )
-        )
-      ),
-      React.createElement('div',{style:{display:'flex',gap:10,justifyContent:'flex-end',borderTop:'1px solid '+BD,paddingTop:16}},
-        React.createElement(Btn,{onClick:()=>setResult(null)},'Discard'),
-        React.createElement('button',{onClick:apply,style:{background:PU,color:N,border:'none',padding:'9px 24px',borderRadius:3,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif'}},'✦ Add selected to programme')
-      )
-    )
-  );
+// ── STATE ─────────────────────────────────────────────────────────────────
+let state = {
+  authed: false,
+  tab: 'dashboard',
+  cias: load(K.cia, SAMPLE_CIA),
+  shs: load(K.sh, SAMPLE_SH),
+  acts: load(K.act, SAMPLE_ACT),
+  saved: true,
+  // CIA state
+  ciaForm: null, ciaEdit: null, ciaShowAI: false,
+  // SH state
+  shForm: null, shEdit: null, shPF: 'all', shShowAI: false,
+  // ACT state
+  actForm: null, actEdit: null, actSF: 'all', actView: 'activities', actShowAI: false,
+  // AI state
+  aiText: '', aiLoading: false, aiProgress: 0, aiResult: null, aiTab: 'cia',
+  aiSelected: {cia:[], sh:[], act:[]},
+  // inline edit
+  inlineEdit: null,
+};
+
+let saveTimer;
+function setState(updates) {
+  Object.assign(state, updates);
+  render();
 }
 
-function Dashboard({cias,stakeholders,activities}){
-  const ta=activities.length||1,ts=stakeholders.length||1;
-  const complete=activities.filter(a=>a.status==='Complete').length;
-  const totalPop=stakeholders.reduce((a,s)=>a+(parseInt(s.population)||0),0);
-  const avgR=(stakeholders.reduce((a,s)=>a+(parseInt(s.readiness)||0),0)/ts).toFixed(1);
-  const pos=stakeholders.filter(s=>s.sentiment==='Positive').length;
-  const neu=stakeholders.filter(s=>s.sentiment==='Neutral').length;
-  const res=stakeholders.filter(s=>s.sentiment==='Resistant').length;
-  const health=Math.round((complete/ta)*0.4*100+(stakeholders.reduce((a,s)=>a+(parseInt(s.readiness)||0),0)/(ts*5))*0.3*100+((pos+neu)/ts)*0.3*100);
-  const hc=health>=75?GR:health>=50?YL:health>=30?A:RD;
+function saveData(key, data) {
+  save(key, data);
+  setState({saved:false});
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => setState({saved:true}), 600);
+}
+
+function updateCias(d) { state.cias=d; saveData(K.cia,d); render(); }
+function updateShs(d) { state.shs=d; saveData(K.sh,d); render(); }
+function updateActs(d) { state.acts=d; saveData(K.act,d); render(); }
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  if (!state.authed) { app.innerHTML = loginHTML(); bindLogin(); return; }
+  app.innerHTML = `
+    ${navHTML()}
+    <div class="main">
+      ${state.tab==='dashboard' ? dashHTML() : ''}
+      ${state.tab==='ai' ? aiTabHTML() : ''}
+      ${state.tab==='cia' ? ciaHTML() : ''}
+      ${state.tab==='shs' ? shHTML() : ''}
+      ${state.tab==='acts' ? actHTML() : ''}
+    </div>
+    <div id="toast" class="toast" style="display:none"></div>
+  `;
+  bindEvents();
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+function navHTML() {
+  const tabs = [['dashboard','Dashboard'],['ai','✦ AI Extract'],['cia','Change Impact'],['shs','Stakeholders'],['acts','C&E Plan']];
+  return `<nav class="nav">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="nav-logo">shift<span>.</span></div>
+      <div class="nav-prog">${CFG.programme}</div>
+      <div class="nav-tabs">${tabs.map(([id,l])=>`<button class="nav-tab${state.tab===id?' active':''}${id==='ai'?' ai-tab':''}" data-tab="${id}">${l}</button>`).join('')}</div>
+    </div>
+    <div class="nav-right">
+      <span class="save-ind${state.saved?'':' saving'}">${state.saved?'✦ Saved':'✦ Saving…'}</span>
+      <span class="tier-badge">Studio</span>
+      <button class="sign-out" id="sign-out-btn">Sign out</button>
+    </div>
+  </nav>`;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+function dashHTML() {
+  const {cias,shs,acts} = state;
+  const ta=acts.length||1, ts=shs.length||1;
+  const complete=acts.filter(a=>a.status==='Complete').length;
+  const pop=shs.reduce((a,s)=>a+(parseInt(s.population)||0),0);
+  const avgR=(shs.reduce((a,s)=>a+(parseInt(s.readiness)||0),0)/ts).toFixed(1);
+  const pos=shs.filter(s=>s.sentiment==='Positive').length;
+  const neu=shs.filter(s=>s.sentiment==='Neutral').length;
+  const res=shs.filter(s=>s.sentiment==='Resistant').length;
+  const health=Math.round((complete/ta)*0.4*100+(shs.reduce((a,s)=>a+(parseInt(s.readiness)||0),0)/(ts*5))*0.3*100+((pos+neu)/ts)*0.3*100);
+  const hc=health>=75?'var(--gr)':health>=50?'var(--yl)':health>=30?'var(--a)':'var(--rd)';
   const hl=health>=75?'On track':health>=50?'Needs attention':health>=30?'At risk':'Critical';
-  const atRisk=stakeholders.filter(s=>s.sentiment==='Resistant'||parseInt(s.readiness)<=2);
-  const crit=activities.filter(a=>a.impactLevel==='Critical'&&a.status!=='Complete');
-  const pR=PERSONAS.map(p=>{const g=stakeholders.filter(s=>s.persona===p);if(!g.length)return null;return{p,avg:g.reduce((a,s)=>a+(parseInt(s.readiness)||0),0)/g.length};}).filter(Boolean);
-  const mono={fontFamily:'JetBrains Mono,monospace'};
-  return React.createElement('div',null,
-    React.createElement('div',{style:{marginBottom:24}},React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:22,fontWeight:500,color:CR,letterSpacing:'-0.01em',marginBottom:4}},'Programme Dashboard'),React.createElement('div',{style:{fontSize:12,color:CR2}},'Live overview')),
-    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr',gap:12,marginBottom:20}},
-      React.createElement('div',{style:{...card,borderColor:hc+'44'}},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},'Health'),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:44,fontWeight:500,color:hc,lineHeight:1,letterSpacing:'-0.03em'}},health),React.createElement('div',{style:{...mono,fontSize:9,color:hc,marginTop:4,textTransform:'uppercase'}},hl),React.createElement(Bar,{pct:health,color:hc,height:3})),
-      [['Activities',complete+'/'+ta,GR],['Avg readiness',avgR+'/5',parseFloat(avgR)>=3.5?GR:parseFloat(avgR)>=2.5?YL:RD],['People',totalPop.toLocaleString(),CR],['Advocates',stakeholders.filter(s=>s.isAdvocate).length,A]].map(([l,v,c])=>React.createElement('div',{key:l,style:card},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},l),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:26,fontWeight:500,color:c,lineHeight:1}},v)))
-    ),
-    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1.4fr 1fr',gap:16,marginBottom:16}},
-      React.createElement('div',{style:card},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:12}},'Activity progress'),[['Complete',complete,GR],['In progress',activities.filter(a=>a.status==='In progress').length,A],['Not started',activities.filter(a=>a.status==='Not started').length,RD]].map(([l,n,c])=>React.createElement('div',{key:l,style:{display:'grid',gridTemplateColumns:'120px 1fr 28px',alignItems:'center',gap:10,marginBottom:10}},React.createElement('div',{style:{fontSize:12,color:CR2}},l),React.createElement(Bar,{pct:n/ta*100,color:c,height:8}),React.createElement('div',{style:{...mono,fontSize:11,color:c,textAlign:'right'}},n)))),
-      React.createElement('div',{style:card},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:12}},'Sentiment'),[['Positive',pos,GR],['Neutral',neu,YL],['Resistant',res,RD]].map(([l,n,c])=>React.createElement('div',{key:l,style:{display:'grid',gridTemplateColumns:'70px 1fr 28px',alignItems:'center',gap:10,marginBottom:10}},React.createElement('div',{style:{fontSize:12,color:CR2}},l),React.createElement(Bar,{pct:n/ts*100,color:c,height:8}),React.createElement('div',{style:{...mono,fontSize:11,color:c,textAlign:'right'}},n))))
-    ),
-    pR.length>0&&React.createElement('div',{style:{...card,marginBottom:16}},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:12}},'Readiness by persona'),React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px 32px'}},pR.map(({p,avg})=>{const c=avg>=3.5?GR:avg>=2.5?YL:RD;return React.createElement('div',{key:p,style:{display:'grid',gridTemplateColumns:'170px 1fr 34px',alignItems:'center',gap:10,padding:'5px 0',borderBottom:'1px solid '+BD}},React.createElement('div',{style:{fontSize:12,color:CR2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},p),React.createElement(Bar,{pct:(avg/5)*100,color:c,height:7}),React.createElement('div',{style:{...mono,fontSize:11,color:c,textAlign:'right'}},avg.toFixed(1)));}))),
-    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}},
-      React.createElement('div',{style:{...card,borderColor:atRisk.length?'rgba(255,107,107,0.25)':BD}},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:atRisk.length?RD:CR3,marginBottom:10}},'⚠ At-risk groups ('+atRisk.length+')'),atRisk.length?atRisk.slice(0,4).map(sh=>React.createElement('div',{key:sh.id,style:{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid '+BD}},React.createElement('div',null,React.createElement('div',{style:{fontSize:12,fontWeight:500}},sh.name),React.createElement('div',{style:{fontSize:11,color:CR2}},sh.persona+' · '+sh.population+' people')),React.createElement(Pill,{v:sh.sentiment,map:SN_MAP}))):React.createElement('div',{style:{fontSize:12,color:GR,fontStyle:'italic'}},'✦ No at-risk groups')),
-      React.createElement('div',{style:{...card,borderColor:crit.length?'rgba(245,146,30,0.25)':BD}},React.createElement('div',{style:{...mono,fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:crit.length?A:CR3,marginBottom:10}},'✦ Critical not complete ('+crit.length+')'),crit.length?crit.slice(0,4).map(a=>React.createElement('div',{key:a.id,style:{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid '+BD}},React.createElement('div',null,React.createElement('div',{style:{fontSize:12,fontWeight:500}},a.title),React.createElement('div',{style:{fontSize:11,color:CR2}},a.audience)),React.createElement(Pill,{v:a.status,map:ST_MAP}))):React.createElement('div',{style:{fontSize:12,color:GR,fontStyle:'italic'}},'✦ All critical complete'))
-    )
-  );
+  const atRisk=shs.filter(s=>s.sentiment==='Resistant'||parseInt(s.readiness)<=2);
+  const crit=acts.filter(a=>a.impactLevel==='Critical'&&a.status!=='Complete');
+  const pR=PERSONAS.map(p=>{const g=shs.filter(s=>s.persona===p);if(!g.length)return null;return{p,avg:g.reduce((a,s)=>a+(parseInt(s.readiness)||0),0)/g.length};}).filter(Boolean);
+
+  return `
+  <div style="margin-bottom:22px"><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:500;margin-bottom:3px">Programme Dashboard</div><div style="font-size:12px;color:var(--cr2)">Live overview — updates as you work</div></div>
+  <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr">
+    <div class="stat-card" style="border-color:${hc}44">
+      <div class="stat-label">Health score</div>
+      <div class="stat-val" style="font-size:40px;color:${hc}">${health}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${hc};margin-top:4px;text-transform:uppercase">${hl}</div>
+      ${bar(health,hc,3)}
+    </div>
+    ${[['Activities',`${complete}/${ta}`,'var(--gr)'],['Avg readiness',`${avgR}/5`,parseFloat(avgR)>=3.5?'var(--gr)':parseFloat(avgR)>=2.5?'var(--yl)':'var(--rd)'],['People impacted',pop.toLocaleString(),'var(--cr)'],['Advocates',shs.filter(s=>s.isAdvocate).length,'var(--a)']].map(([l,v,c])=>`
+    <div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val" style="color:${c}">${v}</div></div>`).join('')}
+  </div>
+  <div class="dash-grid">
+    <div class="dash-card">
+      <div class="stat-label" style="margin-bottom:12px">Activity progress</div>
+      ${[['Complete',complete,'var(--gr)'],['In progress',acts.filter(a=>a.status==='In progress').length,'var(--a)'],['Not started',acts.filter(a=>a.status==='Not started').length,'var(--rd)']].map(([l,n,c])=>`
+      <div class="bar-row"><div class="bar-label">${l}</div>${bar(n/ta*100,c,8)}<div class="bar-val" style="color:${c}">${n}</div></div>`).join('')}
+    </div>
+    <div class="dash-card">
+      <div class="stat-label" style="margin-bottom:12px">Stakeholder sentiment</div>
+      ${[['Positive',pos,'var(--gr)'],['Neutral',neu,'var(--yl)'],['Resistant',res,'var(--rd)']].map(([l,n,c])=>`
+      <div class="bar-row"><div class="bar-label">${l}</div>${bar(n/ts*100,c,8)}<div class="bar-val" style="color:${c}">${n}</div></div>`).join('')}
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bd);font-size:11px;color:var(--cr2)"><span style="color:var(--gr);font-weight:500">${Math.round((pos+neu)/ts*100)}%</span> favourable across ${ts} groups</div>
+    </div>
+  </div>
+  ${pR.length?`<div class="dash-card" style="margin-bottom:16px">
+    <div class="stat-label" style="margin-bottom:12px">Readiness by persona</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 32px">
+      ${pR.map(({p,avg})=>{const c=avg>=3.5?'var(--gr)':avg>=2.5?'var(--yl)':'var(--rd)';return`<div class="bar-row" style="padding:5px 0;border-bottom:1px solid var(--bd)"><div class="bar-label" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p}</div>${bar((avg/5)*100,c,7)}<div class="bar-val" style="color:${c}">${avg.toFixed(1)}</div></div>`;}).join('')}
+    </div>
+  </div>`:''}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="dash-card" style="border-color:${atRisk.length?'rgba(255,107,107,0.25)':'var(--bd)'}">
+      <div class="stat-label" style="color:${atRisk.length?'var(--rd)':'var(--cr3)'}">⚠ Groups needing attention (${atRisk.length})</div>
+      ${atRisk.length?atRisk.slice(0,4).map(s=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)"><div><div style="font-size:12px;font-weight:500">${s.name}</div><div style="font-size:11px;color:var(--cr2)">${s.persona} · ${s.population} people</div></div>${pill(s.sentiment,SN_COLOR)}</div>`).join(''):'<div style="font-size:12px;color:var(--gr);font-style:italic">✦ No at-risk groups</div>'}
+    </div>
+    <div class="dash-card" style="border-color:${crit.length?'rgba(245,146,30,0.25)':'var(--bd)'}">
+      <div class="stat-label" style="color:${crit.length?'var(--a)':'var(--cr3)'}">✦ Critical activities not complete (${crit.length})</div>
+      ${crit.length?crit.slice(0,4).map(a=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)"><div><div style="font-size:12px;font-weight:500">${a.title}</div><div style="font-size:11px;color:var(--cr2)">${a.audience}</div></div>${pill(a.status,ST_COLOR)}</div>`).join(''):'<div style="font-size:12px;color:var(--gr);font-style:italic">✦ All critical activities complete</div>'}
+    </div>
+  </div>`;
 }
 
-function CIAModule({cias,setCias,stakeholders,setStakeholders,activities,setActivities,setToast}){
-  const E={processArea:'',subProcess:'',description:'',changeType:'Process change',affectedRoles:'',impactLevel:'High',benefits:'',fuel:'',friction:'',status:'Draft'};
-  const[show,setShow]=useState(false);const[edit,setEdit]=useState(null);const[fd,setFd]=useState(E);const[showAI,setShowAI]=useState(false);
-  const s=k=>v=>setFd(p=>({...p,[k]:v}));
-  const openAdd=()=>{setEdit(null);setFd(E);setShow(true);};const openEdit=i=>{setEdit(i);setFd({...i});setShow(true);};const close=()=>{setShow(false);setEdit(null);};
-  const submit=()=>{if(!fd.processArea||!fd.description)return alert('Required.');edit?setCias(p=>p.map(c=>c.id===edit.id?{...fd,id:edit.id}:c)):setCias(p=>[...p,{...fd,id:nid(p,'CIA')}]);close();};
-  const del=id=>{if(window.confirm('Delete?'))setCias(p=>p.filter(c=>c.id!==id));};
-  const doImp=()=>pickFile('.xlsx,.xls,.csv',f=>importXL(f,rows=>{const m=rows.filter(r=>getCol(r,['processarea','process area','process']));if(!m.length)return alert('No rows found.');setCias(p=>{const n=[...p,...m.map((r,i)=>({...mapCIA(r),id:nid([...p,...m.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});setToast('✦ '+m.length+' rows imported');setTimeout(()=>setToast(''),3000);}));
-  const doExp=()=>exportXL(cias.map(c=>({'ID':c.id,'Process Area':c.processArea,'Sub-process':c.subProcess,'Description':c.description,'Change Type':c.changeType,'Affected Roles':c.affectedRoles,'Impact Level':c.impactLevel,'Benefits':c.benefits,'Fuel':c.fuel,'Friction':c.friction,'Status':c.status})),'CIA-'+Date.now()+'.xlsx');
-  const onAI=r=>{
-    if(r.cia_entries?.length)setCias(p=>{const n=[...p,...r.cia_entries.map((x,i)=>({...x,id:nid([...p,...r.cia_entries.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});
-    if(r.stakeholders?.length)setStakeholders(p=>{const n=[...p,...r.stakeholders.map((x,i)=>({...x,id:nid([...p,...r.stakeholders.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});
-    if(r.activities?.length)setActivities(p=>{const n=[...p,...r.activities.map((x,i)=>({...x,id:nid([...p,...r.activities.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});
+// ── AI TAB ────────────────────────────────────────────────────────────────
+function aiTabHTML() {
+  const {aiText,aiLoading,aiProgress,aiResult,aiTab,aiSelected} = state;
+  const charCount = aiText.length;
+  const maxChars = CFG.chunkSize * CFG.maxChunks;
+
+  return `<div>
+    <div style="margin-bottom:22px">
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:500;margin-bottom:3px">✦ AI Document Extraction</div>
+      <div style="font-size:12px;color:var(--cr2)">Upload any document — meeting transcript, process map, workshop output, role descriptions. AI extracts structured change data automatically across unlimited document size.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px">
+      ${[['📋','Meeting transcripts','Pain points, decisions and actions → CIA entries and activities'],['🗺','Process maps & docs','Affected roles and process changes → CIA and stakeholders'],['👥','Workshop outputs','Resistance, advocates, sentiment → stakeholder insights']].map(([icon,title,desc])=>`
+      <div class="stat-card" style="border-color:rgba(180,127,255,0.2);background:rgba(180,127,255,0.04)"><div style="font-size:24px;margin-bottom:8px">${icon}</div><div style="font-size:12px;font-weight:600;margin-bottom:4px">${title}</div><div style="font-size:11px;color:var(--cr2);line-height:1.6">${desc}</div></div>`).join('')}
+    </div>
+
+    <div class="ai-panel">
+      <div class="ai-panel-head">
+        <div class="ai-panel-title"><span style="color:var(--pu)">✦</span> Upload or paste document</div>
+      </div>
+      <div class="drop-zone${state.aiDrag?' over':''}" id="ai-drop">
+        <div class="drop-zone-icon">📄</div>
+        <div class="drop-zone-text">Drop your file here or click to browse</div>
+        <div class="drop-zone-hint">Supports .txt · .docx · .xlsx · .csv · any text — no size limit</div>
+      </div>
+      <textarea id="ai-text" placeholder="Or paste your content here — transcripts, process docs, meeting notes, role descriptions, any text…" rows="7" style="width:100%;background:var(--n);border:1px solid var(--bd2);border-radius:3px;padding:10px;color:var(--cr);font-family:'Inter',sans-serif;font-size:13px;resize:vertical;outline:none;margin-bottom:8px">${aiText}</textarea>
+      ${charCount?`<div class="char-count ${charCount>maxChars?'warn':'ok'}">
+        ${charCount.toLocaleString()} characters${charCount>maxChars?` — will process first ${maxChars.toLocaleString()} chars (${CFG.maxChunks} chunks)`:''}
+        ${charCount>CFG.chunkSize?` · Will make ${Math.min(CFG.maxChunks,Math.ceil(charCount/CFG.chunkSize))} API calls`:''}
+      </div>`:''}
+      ${aiLoading?`<div style="margin-bottom:12px">
+        <div style="font-size:12px;color:var(--pu);margin-bottom:6px;font-family:'JetBrains Mono',monospace">✦ Extracting… ${aiProgress}%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${aiProgress}%"></div></div>
+      </div>`:''}
+      <div style="display:flex;justify-content:flex-end">
+        <button class="extract-btn" id="ai-extract-btn" ${aiLoading||!aiText.trim()?'disabled':''}>
+          ${aiLoading?'<div class="spinner"></div> Extracting…':'✦ Extract with AI'}
+        </button>
+      </div>
+    </div>
+
+    ${aiResult ? `
+    <div class="results-section">
+      ${aiResult.summary?`<div class="summary-box"><strong>Document summary:</strong> ${aiResult.summary}</div>`:''}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="results-tabs">
+          <button class="results-tab${aiTab==='cia'?' active':''}" data-ai-tab="cia">CIA (${aiResult.cia_entries?.length||0})</button>
+          <button class="results-tab${aiTab==='sh'?' active':''}" data-ai-tab="sh">Stakeholders (${aiResult.stakeholders?.length||0})</button>
+          <button class="results-tab${aiTab==='act'?' active':''}" data-ai-tab="act">Activities (${aiResult.activities?.length||0})</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="ai-select-all">Select all</button>
+      </div>
+
+      ${aiTab==='cia'?(aiResult.cia_entries?.length?aiResult.cia_entries.map((c,i)=>`
+        <div class="result-row${aiSelected.cia.includes(i)?' selected':''}" data-ai-sel="cia" data-ai-idx="${i}">
+          <div class="result-check">${aiSelected.cia.includes(i)?'✓':''}</div>
+          <div class="result-content">
+            <div class="result-title">${c.processArea}${c.subProcess?' — '+c.subProcess:''}</div>
+            <div class="result-meta">${c.description?.slice(0,120)}</div>
+            <div class="result-pills">${pill(c.impactLevel,IM_COLOR)}<span style="font-size:10px;color:var(--cr3)">${c.changeType}</span>${c.affectedRoles?`<span style="font-size:10px;color:var(--cr2)">${c.affectedRoles}</span>`:''}</div>
+          </div>
+        </div>`).join(''):'<div style="color:var(--cr3);font-style:italic;padding:12px">No CIA entries found in this document</div>'):''}
+
+      ${aiTab==='sh'?(aiResult.stakeholders?.length?aiResult.stakeholders.map((s,i)=>`
+        <div class="result-row${aiSelected.sh.includes(i)?' selected':''}" data-ai-sel="sh" data-ai-idx="${i}">
+          <div class="result-check">${aiSelected.sh.includes(i)?'✓':''}</div>
+          <div class="result-content">
+            <div class="result-title">${s.name}</div>
+            <div class="result-meta">${s.persona} · ${s.population} people · Readiness ${s.readiness}/5${s.site?' · '+s.site:''}</div>
+            <div class="result-pills">${pill(s.sentiment,SN_COLOR)}${pill(s.impactLevel,IM_COLOR)}</div>
+          </div>
+        </div>`).join(''):'<div style="color:var(--cr3);font-style:italic;padding:12px">No stakeholders found in this document</div>'):''}
+
+      ${aiTab==='act'?(aiResult.activities?.length?aiResult.activities.map((a,i)=>`
+        <div class="result-row${aiSelected.act.includes(i)?' selected':''}" data-ai-sel="act" data-ai-idx="${i}">
+          <div class="result-check">${aiSelected.act.includes(i)?'✓':''}</div>
+          <div class="result-content">
+            <div class="result-title">${a.title}</div>
+            <div class="result-meta">${a.audience} · ${a.channel||'channel TBC'} · ${a.owner||'owner TBC'}</div>
+            <div class="result-pills">${pill(a.impactLevel,IM_COLOR)}${pill(a.status,ST_COLOR)}</div>
+          </div>
+        </div>`).join(''):'<div style="color:var(--cr3);font-style:italic;padding:12px">No activities found in this document</div>'):''}
+
+      <div style="display:flex;gap:10px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">
+        <div style="font-size:12px;color:var(--cr2)">${(aiSelected.cia.length+aiSelected.sh.length+aiSelected.act.length)} items selected</div>
+        <button class="btn btn-ghost btn-sm" id="ai-clear">Clear results</button>
+        <button class="add-selected-btn" id="ai-add-selected" style="margin-top:0">✦ Add selected to programme</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+// ── CIA MODULE ────────────────────────────────────────────────────────────
+function ciaHTML() {
+  const {cias, ciaForm, ciaEdit, ciaShowAI, inlineEdit} = state;
+  return `<div>
+    <div class="sec-head">
+      <div><div class="sec-title">Change Impact Assessment</div><div class="sec-sub">Map AI process changes to roles, benefits and friction points</div></div>
+      <div class="btn-row">
+        <button class="btn btn-ai" id="cia-ai-toggle">✦ AI Extract</button>
+        <button class="btn btn-ghost" id="cia-export">↓ Export Excel</button>
+        <button class="btn btn-primary" id="cia-add">+ Add impact</button>
+      </div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+      ${[['Total',cias.length,'var(--cr)'],['Confirmed',cias.filter(c=>c.status==='Confirmed').length,'var(--gr)'],['Draft',cias.filter(c=>c.status==='Draft').length,'var(--yl)'],['Closed',cias.filter(c=>c.status==='Closed').length,'var(--cr3)']].map(([l,v,c])=>`<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val" style="color:${c}">${v}</div></div>`).join('')}
+    </div>
+    ${ciaShowAI ? inlineAIPanel('cia') : ''}
+    <div class="tbl-wrap">
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>ID</th><th>Process Area</th><th>Description</th><th>Type</th><th>Impact</th><th>Status</th><th>Benefits</th><th>Friction</th><th></th></tr></thead>
+          <tbody>
+            ${cias.length ? cias.map(c => {
+              const isEditing = inlineEdit?.type==='cia' && inlineEdit?.id===c.id;
+              return `
+              <tr class="${isEditing?'editing':''}" data-cia-row="${c.id}">
+                <td class="td-mono">${c.id}</td>
+                <td><div class="td-name">${c.processArea}</div><div class="td-sub">${c.subProcess||''}</div></td>
+                <td style="max-width:200px"><div class="td-sub">${(c.description||'').slice(0,80)}${(c.description||'').length>80?'…':''}</div></td>
+                <td class="td-sub">${c.changeType}</td>
+                <td>${pill(c.impactLevel,IM_COLOR)}</td>
+                <td>${pill(c.status,ST_COLOR)}</td>
+                <td style="max-width:160px"><div class="td-sub">${(c.benefits||'').slice(0,60)}${(c.benefits||'').length>60?'…':''}</div></td>
+                <td style="max-width:160px"><div class="td-sub">${(c.friction||'').slice(0,60)}${(c.friction||'').length>60?'…':''}</div></td>
+                <td class="td-actions">
+                  <button class="edit-btn" data-cia-edit="${c.id}">✎</button>
+                  <button class="del-btn" data-cia-del="${c.id}">✕</button>
+                </td>
+              </tr>
+              ${isEditing ? `<tr><td colspan="9" class="inline-edit open">${ciaInlineEditHTML(c)}</td></tr>` : ''}`;
+            }).join('') : `<tr class="empty-row"><td colspan="9">No impacts yet — add one or use AI Extract</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    ${ciaForm ? ciaFormHTML() : ''}
+  </div>`;
+}
+
+function ciaInlineEditHTML(c) {
+  return `<div class="inline-grid">
+    <div class="inline-field"><div class="inline-label">Process Area</div><input class="inline-inp" data-ie="processArea" value="${c.processArea||''}"></div>
+    <div class="inline-field"><div class="inline-label">Sub-process</div><input class="inline-inp" data-ie="subProcess" value="${c.subProcess||''}"></div>
+    <div class="inline-field"><div class="inline-label">Impact Level</div><select class="inline-sel" data-ie="impactLevel">${['Low','Medium','High','Critical'].map(o=>`<option${c.impactLevel===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field full"><div class="inline-label">Description</div><input class="inline-inp" data-ie="description" value="${(c.description||'').replace(/"/g,'&quot;')}"></div>
+    <div class="inline-field"><div class="inline-label">Affected Roles</div><input class="inline-inp" data-ie="affectedRoles" value="${c.affectedRoles||''}"></div>
+    <div class="inline-field"><div class="inline-label">Status</div><select class="inline-sel" data-ie="status">${['Draft','Confirmed','Closed'].map(o=>`<option${c.status===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field"><div class="inline-label">Change Type</div><select class="inline-sel" data-ie="changeType">${['Process change','Role change','Technology','Policy','Other'].map(o=>`<option${c.changeType===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field full"><div class="inline-label">Benefits</div><input class="inline-inp" data-ie="benefits" value="${(c.benefits||'').replace(/"/g,'&quot;')}"></div>
+    <div class="inline-field"><div class="inline-label">Fuel for Change</div><input class="inline-inp" data-ie="fuel" value="${(c.fuel||'').replace(/"/g,'&quot;')}"></div>
+    <div class="inline-field"><div class="inline-label">Friction</div><input class="inline-inp" data-ie="friction" value="${(c.friction||'').replace(/"/g,'&quot;')}"></div>
+  </div>
+  <div class="inline-actions">
+    <button class="btn btn-ghost btn-sm" data-ie-cancel>Cancel</button>
+    <button class="btn btn-primary btn-sm" data-ie-save="cia">Save changes</button>
+  </div>`;
+}
+
+function ciaFormHTML() {
+  const e = state.ciaEdit || {};
+  return `<div class="form-panel" id="cia-form-panel">
+    <div class="form-panel-head">
+      <div class="form-panel-title">${state.ciaEdit?'Edit '+e.id:'New change impact'}</div>
+      <button class="close-btn" id="cia-form-close">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Process Area</label><input id="cf-processArea" value="${e.processArea||''}"></div>
+      <div class="field"><label>Sub-process</label><input id="cf-subProcess" value="${e.subProcess||''}"></div>
+      <div class="field full"><label>Description</label><textarea id="cf-description">${e.description||''}</textarea></div>
+      <div class="field"><label>Change Type</label><select id="cf-changeType">${['Process change','Role change','Technology','Policy','Other'].map(o=>`<option${e.changeType===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>Affected Roles</label><input id="cf-affectedRoles" value="${e.affectedRoles||''}"></div>
+      <div class="field"><label>Impact Level</label><select id="cf-impactLevel">${['Low','Medium','High','Critical'].map(o=>`<option${e.impactLevel===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>Status</label><select id="cf-status">${['Draft','Confirmed','Closed'].map(o=>`<option${e.status===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field full"><label>Benefits</label><textarea id="cf-benefits">${e.benefits||''}</textarea></div>
+      <div class="field"><label>Fuel for Change</label><textarea id="cf-fuel">${e.fuel||''}</textarea></div>
+      <div class="field"><label>Friction / Resistance</label><textarea id="cf-friction">${e.friction||''}</textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="cia-form-cancel">Cancel</button>
+      <button class="btn btn-primary" id="cia-form-save">${state.ciaEdit?'Save changes':'Add to CIA'}</button>
+    </div>
+  </div>`;
+}
+
+// ── STAKEHOLDER MODULE ────────────────────────────────────────────────────
+function shHTML() {
+  const {shs, shPF, shShowAI, inlineEdit} = state;
+  const filtered = shPF==='all' ? shs : shs.filter(s=>s.persona===shPF);
+  return `<div>
+    <div class="sec-head">
+      <div><div class="sec-title">Stakeholder Register & Analysis</div><div class="sec-sub">Map people, score readiness and track sentiment — ${shs.length} groups · ${shs.reduce((a,s)=>a+(parseInt(s.population)||0),0).toLocaleString()} people</div></div>
+      <div class="btn-row">
+        <button class="btn btn-ai" id="sh-ai-toggle">✦ AI Extract</button>
+        <button class="btn btn-ghost" id="sh-export">↓ Export Excel</button>
+        <button class="btn btn-primary" id="sh-add">+ Add group</button>
+      </div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+      ${[['Total population',shs.reduce((a,s)=>a+(parseInt(s.population)||0),0).toLocaleString(),'var(--cr)'],['Groups',shs.length,'var(--cr)'],['Advocates',shs.filter(s=>s.isAdvocate).length,'var(--a)'],['Resistant',shs.filter(s=>s.sentiment==='Resistant').length,'var(--rd)']].map(([l,v,c])=>`<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val" style="color:${c}">${v}</div></div>`).join('')}
+    </div>
+    ${shShowAI ? inlineAIPanel('sh') : ''}
+    <div class="persona-filters">
+      ${['all',...PERSONAS].map(p=>`<button class="pf-btn${shPF===p?' active':''}" data-pf="${p}">${p==='all'?'All personas':p}</button>`).join('')}
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Name / Group</th><th>Persona</th><th>Site</th><th>Pop.</th><th>Readiness</th><th>Sentiment</th><th>Influence</th><th>Impact</th><th>Advocate</th><th>Notes</th><th></th></tr></thead>
+          <tbody>
+            ${filtered.length ? filtered.map(s => {
+              const isEditing = inlineEdit?.type==='sh' && inlineEdit?.id===s.id;
+              return `
+              <tr class="${isEditing?'editing':''}" data-sh-row="${s.id}">
+                <td><div class="td-name">${s.name}</div><div class="td-sub">${s.jobTitle||''}</div></td>
+                <td class="td-sub">${s.persona}</td>
+                <td class="td-sub">${s.site||'—'}</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${s.population}</td>
+                <td><div class="rdots">${rdots(s.readiness||0)}</div></td>
+                <td>${pill(s.sentiment,SN_COLOR)}</td>
+                <td>${pill(s.influence,{High:'pill-amber',Medium:'pill-yellow',Low:'pill-gray'})}</td>
+                <td>${pill(s.impactLevel,IM_COLOR)}</td>
+                <td style="text-align:center;color:${s.isAdvocate?'var(--gr)':'var(--cr3)'};font-size:14px">${s.isAdvocate?'✦':'○'}</td>
+                <td style="max-width:140px"><div class="td-sub">${(s.notes||'').slice(0,50)}${(s.notes||'').length>50?'…':''}</div></td>
+                <td class="td-actions">
+                  <button class="edit-btn" data-sh-edit="${s.id}">✎</button>
+                  <button class="del-btn" data-sh-del="${s.id}">✕</button>
+                </td>
+              </tr>
+              ${isEditing ? `<tr><td colspan="11" class="inline-edit open">${shInlineEditHTML(s)}</td></tr>` : ''}`;
+            }).join('') : `<tr class="empty-row"><td colspan="11">No stakeholders yet — add one or use AI Extract</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    ${state.shForm ? shFormHTML() : ''}
+  </div>`;
+}
+
+function shInlineEditHTML(s) {
+  return `<div class="inline-grid">
+    <div class="inline-field"><div class="inline-label">Name / Group</div><input class="inline-inp" data-ie="name" value="${s.name||''}"></div>
+    <div class="inline-field"><div class="inline-label">Job Title</div><input class="inline-inp" data-ie="jobTitle" value="${s.jobTitle||''}"></div>
+    <div class="inline-field"><div class="inline-label">Site</div><input class="inline-inp" data-ie="site" value="${s.site||''}"></div>
+    <div class="inline-field"><div class="inline-label">Persona</div><select class="inline-sel" data-ie="persona">${PERSONAS.map(o=>`<option${s.persona===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field"><div class="inline-label">Population</div><input class="inline-inp" type="number" data-ie="population" value="${s.population||1}"></div>
+    <div class="inline-field"><div class="inline-label">Readiness (1-5)</div><select class="inline-sel" data-ie="readiness">${[1,2,3,4,5].map(o=>`<option${s.readiness==o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field"><div class="inline-label">Sentiment</div><select class="inline-sel" data-ie="sentiment">${['Positive','Neutral','Resistant','Unknown'].map(o=>`<option${s.sentiment===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field"><div class="inline-label">Influence</div><select class="inline-sel" data-ie="influence">${['High','Medium','Low'].map(o=>`<option${s.influence===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field"><div class="inline-label">Impact Level</div><select class="inline-sel" data-ie="impactLevel">${['Critical','High','Medium','Low'].map(o=>`<option${s.impactLevel===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field"><div class="inline-label">Notes</div><input class="inline-inp" data-ie="notes" value="${(s.notes||'').replace(/"/g,'&quot;')}"></div>
+    <div class="inline-field"><div class="inline-label">Advocate?</div><select class="inline-sel" data-ie="isAdvocate"><option value="false"${!s.isAdvocate?' selected':''}>No</option><option value="true"${s.isAdvocate?' selected':''}>Yes</option></select></div>
+  </div>
+  <div class="inline-actions">
+    <button class="btn btn-ghost btn-sm" data-ie-cancel>Cancel</button>
+    <button class="btn btn-primary btn-sm" data-ie-save="sh">Save changes</button>
+  </div>`;
+}
+
+function shFormHTML() {
+  const e = state.shEdit || {};
+  return `<div class="form-panel">
+    <div class="form-panel-head">
+      <div class="form-panel-title">${state.shEdit?'Edit '+e.id:'New stakeholder group'}</div>
+      <button class="close-btn" id="sh-form-close">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Name / Group</label><input id="sf-name" value="${e.name||''}"></div>
+      <div class="field"><label>Job Title</label><input id="sf-jobTitle" value="${e.jobTitle||''}"></div>
+      <div class="field"><label>Persona</label><select id="sf-persona">${PERSONAS.map(o=>`<option${e.persona===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>Site</label><input id="sf-site" value="${e.site||''}"></div>
+      <div class="field"><label>Population</label><input type="number" id="sf-population" value="${e.population||1}"></div>
+      <div class="field"><label>Readiness (1–5)</label><select id="sf-readiness">${[1,2,3,4,5].map(o=>`<option${e.readiness==o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>Sentiment</label><select id="sf-sentiment">${['Positive','Neutral','Resistant','Unknown'].map(o=>`<option${e.sentiment===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>Influence</label><select id="sf-influence">${['High','Medium','Low'].map(o=>`<option${e.influence===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>Impact Level</label><select id="sf-impactLevel">${['Critical','High','Medium','Low'].map(o=>`<option${e.impactLevel===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>Advocate?</label><select id="sf-isAdvocate"><option value="false"${!e.isAdvocate?' selected':''}>No</option><option value="true"${e.isAdvocate?' selected':''}>Yes — includes advocates</option></select></div>
+      <div class="field full"><label>Notes</label><textarea id="sf-notes">${e.notes||''}</textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="sh-form-cancel">Cancel</button>
+      <button class="btn btn-primary" id="sh-form-save">${state.shEdit?'Save changes':'Add stakeholder'}</button>
+    </div>
+  </div>`;
+}
+
+// ── C&E PLAN MODULE ───────────────────────────────────────────────────────
+function actHTML() {
+  const {acts, actSF, actView, inlineEdit, cias, shs} = state;
+  const filtered = actSF==='all' ? acts : acts.filter(a=>a.status===actSF);
+
+  // heatmap
+  const hP = [...new Set(shs.map(s=>s.persona))];
+  const hS = [...new Set(shs.map(s=>s.site))];
+  const hVal = (p,s) => {
+    const sh = shs.find(x=>x.persona===p&&x.site===s);
+    if(!sh) return 0;
+    return Math.min(4, Math.round((parseInt(sh.population)||0)/12) + Math.round(acts.filter(a=>a.audience===p).length/2));
   };
-  return React.createElement('div',null,
-    React.createElement(SectionHead,{title:'Change Impact Assessment',sub:'Map AI process changes to roles, benefits and friction',onAdd:openAdd,onImport:doImp,onExport:doExp}),
-    React.createElement('div',{style:{marginBottom:16}},showAI?React.createElement(AIPanel,{onExtract:r=>{onAI(r);setShowAI(false);},setToast,inline:true}):React.createElement(Btn,{sm:true,ai:true,onClick:()=>setShowAI(true)},'✦ AI Extract from document')),
-    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}},[['Total',cias.length,null],['Confirmed',cias.filter(c=>c.status==='Confirmed').length,GR],['Draft',cias.filter(c=>c.status==='Draft').length,YL],['Closed',cias.filter(c=>c.status==='Closed').length,null]].map(([l,v,c])=>React.createElement('div',{key:l,style:card},React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},l),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:28,fontWeight:500,color:c||CR,lineHeight:1}},v)))),
-    React.createElement('div',{style:{background:N2,border:'1px solid '+BD,borderRadius:6,overflowX:'auto'}},
-      React.createElement('table',{style:{width:'100%',borderCollapse:'collapse',minWidth:900}},
-        React.createElement('thead',null,React.createElement('tr',null,['ID','Process / Sub-process','Description','Type','Impact','Status','Benefits','Friction',''].map((h,i)=>React.createElement('th',{key:i,style:th},h)))),
-        React.createElement('tbody',null,
-          cias.map(c=>React.createElement('tr',{key:c.id,onClick:()=>openEdit(c),style:{cursor:'pointer'},onMouseEnter:e=>e.currentTarget.style.background='rgba(237,232,223,0.03)',onMouseLeave:e=>e.currentTarget.style.background=''},
-            React.createElement('td',{style:{...td,fontFamily:'JetBrains Mono,monospace',fontSize:10,color:CR3}},c.id),
-            React.createElement('td',{style:td},React.createElement('div',{style:{fontWeight:500}},c.processArea),React.createElement('div',{style:{fontSize:11,color:CR2}},c.subProcess)),
-            React.createElement('td',{style:{...td,maxWidth:200,color:CR2}},c.description?.slice(0,75)+(c.description?.length>75?'…':'')),
-            React.createElement('td',{style:{...td,fontSize:11,color:CR2}},c.changeType),
-            React.createElement('td',{style:td},React.createElement(Pill,{v:c.impactLevel,map:IM_MAP})),
-            React.createElement('td',{style:td},React.createElement(Pill,{v:c.status,map:ST_MAP})),
-            React.createElement('td',{style:{...td,maxWidth:160,fontSize:11,color:CR2}},c.benefits?.slice(0,55)+(c.benefits?.length>55?'…':'')),
-            React.createElement('td',{style:{...td,maxWidth:160,fontSize:11,color:CR2}},c.friction?.slice(0,55)+(c.friction?.length>55?'…':'')),
-            React.createElement('td',{style:{...td,width:44}},React.createElement(DeleteX,{onClick:()=>del(c.id)}))
-          )),
-          !cias.length&&React.createElement('tr',null,React.createElement('td',{colSpan:9,style:{padding:48,textAlign:'center',color:CR3,fontFamily:'Fraunces,serif',fontSize:16,fontStyle:'italic'}},'No impacts yet'))
-        )
-      )
-    ),
-    show&&React.createElement(FormWrap,{title:edit?'Edit '+edit.id:'New change impact',onClose:close,onSubmit:submit,submitLabel:edit?'Save':'Add to CIA'},
-      React.createElement(F,{label:'Process Area'},React.createElement(FInp,{value:fd.processArea,onChange:s('processArea'),placeholder:'e.g. Finance'})),
-      React.createElement(F,{label:'Sub-process'},React.createElement(FInp,{value:fd.subProcess,onChange:s('subProcess'),placeholder:'e.g. Accounts Payable'})),
-      React.createElement(F,{label:'Description',full:true},React.createElement(FTxt,{value:fd.description,onChange:s('description'),placeholder:'What is changing?'})),
-      React.createElement(F,{label:'Change Type'},React.createElement(FSel,{value:fd.changeType,onChange:s('changeType'),options:['Process change','Role change','Technology','Policy','Other']})),
-      React.createElement(F,{label:'Affected Roles'},React.createElement(FInp,{value:fd.affectedRoles,onChange:s('affectedRoles'),placeholder:'e.g. AP Clerks'})),
-      React.createElement(F,{label:'Impact Level'},React.createElement(FSel,{value:fd.impactLevel,onChange:s('impactLevel'),options:['Low','Medium','High','Critical']})),
-      React.createElement(F,{label:'Status'},React.createElement(FSel,{value:fd.status,onChange:s('status'),options:['Draft','Confirmed','Closed']})),
-      React.createElement(F,{label:'Benefits',full:true},React.createElement(FTxt,{value:fd.benefits,onChange:s('benefits'),placeholder:'What value does this deliver?'})),
-      React.createElement(F,{label:'Fuel'},React.createElement(FTxt,{value:fd.fuel,onChange:s('fuel'),placeholder:'What motivates adoption?'})),
-      React.createElement(F,{label:'Friction'},React.createElement(FTxt,{value:fd.friction,onChange:s('friction'),placeholder:'What barriers might arise?'}))
-    )
-  );
+
+  return `<div>
+    <div class="sec-head">
+      <div><div class="sec-title">Communications & Engagement Plan</div><div class="sec-sub">Plan, assign and track every change activity</div></div>
+      <div class="btn-row">
+        <button class="btn btn-ai" id="act-ai-toggle">✦ AI Extract</button>
+        <button class="btn btn-ghost" id="act-export">↓ Export Excel</button>
+        <button class="btn btn-primary" id="act-add">+ Add activity</button>
+      </div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+      ${[['Total',acts.length,'var(--cr)'],['Complete',acts.filter(a=>a.status==='Complete').length,'var(--gr)'],['In progress',acts.filter(a=>a.status==='In progress').length,'var(--a)'],['Not started',acts.filter(a=>a.status==='Not started').length,'var(--rd)']].map(([l,v,c])=>`<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val" style="color:${c}">${v}</div></div>`).join('')}
+    </div>
+    ${state.actShowAI ? inlineAIPanel('act') : ''}
+    <div class="view-tabs">
+      <button class="view-tab${actView==='activities'?' active':''}" data-view="activities">Activities</button>
+      <button class="view-tab${actView==='heatmap'?' active':''}" data-view="heatmap">Impact Heatmap</button>
+    </div>
+    ${actView==='activities'?`
+    <div class="filter-bar">
+      ${['all','Not started','In progress','Complete','On hold'].map(f=>`<button class="filter-btn${actSF===f?' active':''}" data-sf="${f}">${f==='all'?'All':f}</button>`).join('')}
+      <div class="filter-count">${filtered.length} shown</div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>#</th><th>Activity</th><th>Status</th><th>Audience</th><th>Channel</th><th>Owner</th><th>Impact</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+            ${filtered.length ? filtered.map(a => {
+              const isEditing = inlineEdit?.type==='act' && inlineEdit?.id===a.id;
+              return `
+              <tr class="${isEditing?'editing':''}" data-act-row="${a.id}">
+                <td class="td-mono">${a.id}</td>
+                <td style="min-width:180px"><div class="td-name">${a.title}</div>${a.ciaLink?`<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--a);margin-top:2px">↳ ${a.ciaLink}</div>`:''}</td>
+                <td>${pill(a.status,ST_COLOR)}</td>
+                <td class="td-sub">${a.audience||'—'}</td>
+                <td class="td-sub">${a.channel||'—'}</td>
+                <td class="td-sub">${a.owner||'—'}</td>
+                <td>${pill(a.impactLevel,IM_COLOR)}</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cr2)">${a.publishDate||'—'}</td>
+                <td class="td-actions">
+                  <button class="edit-btn" data-act-edit="${a.id}">✎</button>
+                  <button class="del-btn" data-act-del="${a.id}">✕</button>
+                </td>
+              </tr>
+              ${isEditing ? `<tr><td colspan="9" class="inline-edit open">${actInlineEditHTML(a, cias)}</td></tr>` : ''}`;
+            }).join('') : `<tr class="empty-row"><td colspan="9">No activities yet — add one or use AI Extract</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>` : `
+    <div class="tbl-wrap" style="padding:20px;overflow-x:auto">
+      ${hP.length&&hS.length?`<table class="hmap">
+        <thead><tr><th>Persona / Site</th>${hS.map(s=>`<th>${s}</th>`).join('')}</tr></thead>
+        <tbody>${hP.map(p=>`<tr><th>${p}</th>${hS.map(s=>{const v=hVal(p,s);return`<td class="h${v}">${v>0?['-','1','2','3','4+'][v]:''}</td>`;}).join('')}</tr>`).join('')}</tbody>
+      </table>
+      <div style="display:flex;gap:14px;margin-top:14px;font-size:11px;color:var(--cr2);flex-wrap:wrap;align-items:center">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--cr3)">Intensity:</span>
+        ${['N/A','Low','Medium','High','Critical'].map((l,i)=>`<span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;display:inline-block;background:${['rgba(237,232,223,0.04)','rgba(245,146,30,0.15)','rgba(245,146,30,0.33)','rgba(245,146,30,0.62)','#F5921E'][i]}"></span>${l}</span>`).join('')}
+      </div>`:'<div style="padding:48px;text-align:center;color:var(--cr3);font-family:Fraunces,serif;font-size:16px;font-style:italic">Add stakeholders to generate the heatmap</div>'}
+    </div>`}
+    ${state.actForm ? actFormHTML(cias) : ''}
+  </div>`;
 }
 
-function StakeholderModule({stakeholders,setStakeholders,cias,setCias,activities,setActivities,setToast}){
-  const E={name:'',jobTitle:'',persona:'End Users',site:'',population:1,readiness:3,sentiment:'Unknown',influence:'Medium',impactLevel:'Medium',isAdvocate:false,notes:''};
-  const[show,setShow]=useState(false);const[edit,setEdit]=useState(null);const[fd,setFd]=useState(E);const[pf,setPf]=useState('all');const[showAI,setShowAI]=useState(false);
-  const s=k=>v=>setFd(p=>({...p,[k]:v}));
-  const filt=pf==='all'?stakeholders:stakeholders.filter(sh=>sh.persona===pf);
-  const openAdd=()=>{setEdit(null);setFd(E);setShow(true);};const openEdit=i=>{setEdit(i);setFd({...i});setShow(true);};const close=()=>{setShow(false);setEdit(null);};
-  const submit=()=>{if(!fd.name)return alert('Name required.');const row={...fd,population:parseInt(fd.population)||0,readiness:parseInt(fd.readiness)||3};edit?setStakeholders(p=>p.map(sh=>sh.id===edit.id?{...row,id:edit.id}:sh)):setStakeholders(p=>[...p,{...row,id:nid(p,'SH')}]);close();};
-  const del=id=>{if(window.confirm('Delete?'))setStakeholders(p=>p.filter(sh=>sh.id!==id));};
-  const doImp=()=>pickFile('.xlsx,.xls,.csv',f=>importXL(f,rows=>{const m=rows.filter(r=>getCol(r,['name','stakeholder','group']));if(!m.length)return alert('No rows.');setStakeholders(p=>{const n=[...p,...m.map((r,i)=>({...mapSH(r),id:nid([...p,...m.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});setToast('✦ '+m.length+' rows imported');setTimeout(()=>setToast(''),3000);}));
-  const doExp=()=>exportXL(stakeholders.map(s=>({'ID':s.id,'Name':s.name,'Job Title':s.jobTitle,'Persona':s.persona,'Site':s.site,'Population':s.population,'Readiness':s.readiness,'Sentiment':s.sentiment,'Influence':s.influence,'Impact Level':s.impactLevel,'Advocate':s.isAdvocate?'Yes':'No','Notes':s.notes})),'Stakeholders-'+Date.now()+'.xlsx');
-  const onAI=r=>{
-    if(r.stakeholders?.length)setStakeholders(p=>{const n=[...p,...r.stakeholders.map((x,i)=>({...x,id:nid([...p,...r.stakeholders.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});
-    if(r.cia_entries?.length)setCias(p=>{const n=[...p,...r.cia_entries.map((x,i)=>({...x,id:nid([...p,...r.cia_entries.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});
-    if(r.activities?.length)setActivities(p=>{const n=[...p,...r.activities.map((x,i)=>({...x,id:nid([...p,...r.activities.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});
+function actInlineEditHTML(a, cias) {
+  const ciaOpts = [{value:'',label:'— None —'},...cias.map(c=>({value:c.id,label:`${c.id} · ${c.processArea}`}))];
+  return `<div class="inline-grid">
+    <div class="inline-field full"><div class="inline-label">Title</div><input class="inline-inp" data-ie="title" value="${(a.title||'').replace(/"/g,'&quot;')}"></div>
+    <div class="inline-field"><div class="inline-label">Audience</div><select class="inline-sel" data-ie="audience" id="ie-aud">${['','...'].concat(Object.keys(SUGGEST)).map(o=>o===''?`<option value="">— Select —</option>`:o==='...'?'':
+      `<option${a.audience===o?' selected':''}>${o}</option>`).filter(Boolean).join('')}</select></div>
+    <div class="inline-field"><div class="inline-label">Status</div><select class="inline-sel" data-ie="status">${['Not started','In progress','Complete','On hold'].map(o=>`<option${a.status===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field"><div class="inline-label">Impact Level</div><select class="inline-sel" data-ie="impactLevel">${['Critical','High','Medium','Low'].map(o=>`<option${a.impactLevel===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="inline-field"><div class="inline-label">Channel</div><input class="inline-inp" data-ie="channel" value="${a.channel||''}"></div>
+    <div class="inline-field"><div class="inline-label">Owner</div><input class="inline-inp" data-ie="owner" value="${a.owner||''}"></div>
+    <div class="inline-field"><div class="inline-label">Reviewer</div><input class="inline-inp" data-ie="reviewer" value="${a.reviewer||''}"></div>
+    <div class="inline-field"><div class="inline-label">Publish Date</div><input class="inline-inp" type="date" data-ie="publishDate" value="${a.publishDate||''}"></div>
+    <div class="inline-field"><div class="inline-label">Linked CIA</div><select class="inline-sel" data-ie="ciaLink">${ciaOpts.map(o=>`<option value="${o.value}"${a.ciaLink===o.value?' selected':''}>${o.label}</option>`).join('')}</select></div>
+  </div>
+  <div class="inline-actions">
+    <button class="btn btn-ghost btn-sm" data-ie-cancel>Cancel</button>
+    <button class="btn btn-primary btn-sm" data-ie-save="act">Save changes</button>
+  </div>`;
+}
+
+function actFormHTML(cias) {
+  const e = state.actEdit || {};
+  const ciaOpts = [{value:'',label:'— None —'},...cias.map(c=>({value:c.id,label:`${c.id} · ${c.processArea}`}))];
+  return `<div class="form-panel">
+    <div class="form-panel-head">
+      <div class="form-panel-title">${state.actEdit?'Edit '+e.id:'New activity'}</div>
+      <button class="close-btn" id="act-form-close">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="field full"><label>Activity Title</label><input id="af-title" value="${(e.title||'').replace(/"/g,'&quot;')}"></div>
+      <div class="field full"><label>Description</label><textarea id="af-description">${e.description||''}</textarea></div>
+      <div class="field"><label>Audience</label><select id="af-audience" onchange="window._suggestAct(this.value)">${[{v:'',l:'— Select —'},...Object.keys(SUGGEST).map(k=>({v:k,l:k}))].map(o=>`<option value="${o.v}"${e.audience===o.v?' selected':''}>${o.l}</option>`).join('')}</select></div>
+      <div class="field"><label>Linked CIA</label><select id="af-ciaLink">${ciaOpts.map(o=>`<option value="${o.value}"${e.ciaLink===o.value?' selected':''}>${o.label}</option>`).join('')}</select></div>
+      <div class="field"><label>Owner <span class="auto-badge">AUTO</span></label><input id="af-owner" class="auto-inp" value="${e.owner||''}" placeholder="Auto-populated"></div>
+      <div class="field"><label>Channel <span class="auto-badge">AUTO</span></label><input id="af-channel" class="auto-inp" value="${e.channel||''}" placeholder="Auto-populated"></div>
+      <div class="field"><label>Reviewer <span class="auto-badge">AUTO</span></label><input id="af-reviewer" class="auto-inp" value="${e.reviewer||''}" placeholder="Auto-populated"></div>
+      <div class="field"><label>Status</label><select id="af-status">${['Not started','In progress','Complete','On hold'].map(o=>`<option${e.status===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>Impact Level</label><select id="af-impactLevel">${['Critical','High','Medium','Low'].map(o=>`<option${e.impactLevel===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label>Publish Date</label><input type="date" id="af-publishDate" value="${e.publishDate||''}"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="act-form-cancel">Cancel</button>
+      <button class="btn btn-primary" id="act-form-save">${state.actEdit?'Save changes':'Add to plan'}</button>
+    </div>
+  </div>`;
+}
+
+// ── INLINE AI PANEL (within modules) ─────────────────────────────────────
+function inlineAIPanel(module) {
+  return `<div class="ai-panel" style="margin-bottom:16px">
+    <div class="ai-panel-head">
+      <div class="ai-panel-title"><span style="color:var(--pu)">✦</span> AI Extract — drop a file or paste text</div>
+      <button class="close-btn" data-ai-close="${module}">✕</button>
+    </div>
+    <div class="drop-zone" id="inline-drop-${module}">
+      <div class="drop-zone-icon">📄</div>
+      <div class="drop-zone-text">Drop file or click to browse</div>
+      <div class="drop-zone-hint">.txt · .docx · .xlsx · .csv</div>
+    </div>
+    <textarea id="inline-ai-text-${module}" placeholder="Or paste your document text here…" rows="4" style="width:100%;background:var(--n);border:1px solid var(--bd2);border-radius:3px;padding:8px;color:var(--cr);font-family:'Inter',sans-serif;font-size:12px;resize:vertical;outline:none;margin-bottom:8px"></textarea>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="extract-btn" style="padding:7px 18px;font-size:12px" id="inline-extract-${module}">✦ Extract & add to ${module==='cia'?'Change Impact':module==='sh'?'Stakeholders':'C&E Plan'}</button>
+    </div>
+  </div>`;
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+function loginHTML() {
+  return `<div class="login-wrap">
+    <div style="margin-bottom:28px;text-align:center">
+      <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:500;letter-spacing:-0.02em">shift<span style="color:var(--a)">.</span></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--cr3);margin-top:6px">AI Change Accelerator · Studio</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--cr3);margin-top:4px">${CFG.site}</div>
+    </div>
+    <div class="login-card">
+      <div style="font-size:15px;font-weight:500;margin-bottom:6px">Enter your access code</div>
+      <div style="font-size:12px;color:var(--cr2);margin-bottom:20px">Provided when you signed up · <a href="mailto:${CFG.email}" style="color:var(--a);text-decoration:none">${CFG.email}</a></div>
+      <input type="password" id="pw-input" placeholder="••••••••" style="width:100%;background:var(--n);border:1px solid var(--bd2);border-radius:3px;padding:9px 11px;color:var(--cr);font-family:'Inter',sans-serif;font-size:15px;outline:none;letter-spacing:0.1em;margin-bottom:10px">
+      <div id="pw-err" style="display:none;font-size:12px;color:var(--rd);background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);border-radius:3px;padding:8px 12px;margin-bottom:10px"></div>
+      <button id="pw-btn" style="width:100%;background:var(--a);color:var(--n);border:none;padding:11px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Access workspace →</button>
+    </div>
+  </div>`;
+}
+
+// ── EVENT BINDING ─────────────────────────────────────────────────────────
+function bindLogin() {
+  const btn = document.getElementById('pw-btn');
+  const inp = document.getElementById('pw-input');
+  const err = document.getElementById('pw-err');
+  const attempt = () => {
+    if (inp.value.trim() === CFG.password) {
+      save(K.sess, true);
+      setState({authed: true});
+    } else {
+      err.textContent = `Incorrect password. Contact ${CFG.email} for access.`;
+      err.style.display = 'block';
+      inp.value = '';
+    }
   };
-  return React.createElement('div',null,
-    React.createElement(SectionHead,{title:'Stakeholder Register & Analysis',sub:'Map people, score readiness and track sentiment',onAdd:openAdd,onImport:doImp,onExport:doExp}),
-    React.createElement('div',{style:{marginBottom:16}},showAI?React.createElement(AIPanel,{onExtract:r=>{onAI(r);setShowAI(false);},setToast,inline:true}):React.createElement(Btn,{sm:true,ai:true,onClick:()=>setShowAI(true)},'✦ AI Extract from document')),
-    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}},[['Total pop',stakeholders.reduce((a,sh)=>a+(parseInt(sh.population)||0),0).toLocaleString(),null],['Groups',stakeholders.length,null],['Advocates',stakeholders.filter(s=>s.isAdvocate).length,GR],['Resistant',stakeholders.filter(s=>s.sentiment==='Resistant').length,RD]].map(([l,v,c])=>React.createElement('div',{key:l,style:card},React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},l),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:28,fontWeight:500,color:c||CR,lineHeight:1}},v)))),
-    React.createElement('div',{style:{display:'flex',gap:8,marginBottom:16,flexWrap:'wrap'}},['all',...PERSONAS].map(p=>React.createElement('button',{key:p,onClick:()=>setPf(p),style:{padding:'5px 13px',borderRadius:20,border:'1px solid '+(pf===p?A:BD2),background:pf===p?A:'transparent',color:pf===p?N:CR2,fontSize:11,cursor:'pointer',fontFamily:'Inter,sans-serif'}},p==='all'?'All':p))),
-    React.createElement('div',{style:{background:N2,border:'1px solid '+BD,borderRadius:6,overflowX:'auto'}},
-      React.createElement('table',{style:{width:'100%',borderCollapse:'collapse',minWidth:900}},
-        React.createElement('thead',null,React.createElement('tr',null,['Name','Persona','Site','Pop.','Readiness','Sentiment','Influence','Impact','Advocate','Notes',''].map((h,i)=>React.createElement('th',{key:i,style:th},h)))),
-        React.createElement('tbody',null,
-          filt.map(sh=>React.createElement('tr',{key:sh.id,onClick:()=>openEdit(sh),style:{cursor:'pointer'},onMouseEnter:e=>e.currentTarget.style.background='rgba(237,232,223,0.03)',onMouseLeave:e=>e.currentTarget.style.background=''},
-            React.createElement('td',{style:td},React.createElement('div',{style:{fontWeight:500}},sh.name),React.createElement('div',{style:{fontSize:11,color:CR2}},sh.jobTitle)),
-            React.createElement('td',{style:{...td,fontSize:11,color:CR2}},sh.persona),
-            React.createElement('td',{style:{...td,fontSize:11,color:CR2}},sh.site),
-            React.createElement('td',{style:{...td,fontFamily:'JetBrains Mono,monospace',fontSize:12}},sh.population),
-            React.createElement('td',{style:td},React.createElement('div',{style:{display:'flex',gap:2}},[1,2,3,4,5].map(n=>React.createElement('span',{key:n,style:{width:9,height:9,borderRadius:2,background:n<=(sh.readiness||0)?A:'rgba(237,232,223,0.1)',display:'inline-block'}})))),
-            React.createElement('td',{style:td},React.createElement(Pill,{v:sh.sentiment,map:SN_MAP})),
-            React.createElement('td',{style:td},React.createElement(Pill,{v:sh.influence,map:{High:[A,AB],Medium:[YL,'rgba(255,209,102,0.1)'],Low:[CR2,'rgba(237,232,223,0.08)']}})),
-            React.createElement('td',{style:td},React.createElement(Pill,{v:sh.impactLevel,map:IM_MAP})),
-            React.createElement('td',{style:{...td,textAlign:'center'}},React.createElement('span',{style:{color:sh.isAdvocate?GR:CR3,fontSize:14}},sh.isAdvocate?'✦':'○')),
-            React.createElement('td',{style:{...td,fontSize:11,color:CR2,maxWidth:140}},sh.notes?.slice(0,45)+(sh.notes?.length>45?'…':'')),
-            React.createElement('td',{style:{...td,width:44}},React.createElement(DeleteX,{onClick:()=>del(sh.id)}))
-          )),
-          !filt.length&&React.createElement('tr',null,React.createElement('td',{colSpan:11,style:{padding:48,textAlign:'center',color:CR3,fontFamily:'Fraunces,serif',fontSize:16,fontStyle:'italic'}},'No stakeholders yet'))
-        )
-      )
-    ),
-    show&&React.createElement(FormWrap,{title:edit?'Edit '+edit.id:'New stakeholder',onClose:close,onSubmit:submit,submitLabel:edit?'Save':'Add'},
-      React.createElement(F,{label:'Name'},React.createElement(FInp,{value:fd.name,onChange:s('name'),placeholder:'e.g. AP Finance Team'})),
-      React.createElement(F,{label:'Job Title'},React.createElement(FInp,{value:fd.jobTitle,onChange:s('jobTitle'),placeholder:'e.g. AP Clerks'})),
-      React.createElement(F,{label:'Persona'},React.createElement(FSel,{value:fd.persona,onChange:s('persona'),options:PERSONAS})),
-      React.createElement(F,{label:'Site'},React.createElement(FInp,{value:fd.site,onChange:s('site'),placeholder:'e.g. London HQ'})),
-      React.createElement(F,{label:'Population'},React.createElement(FInp,{value:fd.population,onChange:s('population'),type:'number'})),
-      React.createElement(F,{label:'Readiness (1-5)'},React.createElement(FSel,{value:fd.readiness,onChange:s('readiness'),options:[1,2,3,4,5]})),
-      React.createElement(F,{label:'Sentiment'},React.createElement(FSel,{value:fd.sentiment,onChange:s('sentiment'),options:['Positive','Neutral','Resistant','Unknown']})),
-      React.createElement(F,{label:'Influence'},React.createElement(FSel,{value:fd.influence,onChange:s('influence'),options:['High','Medium','Low']})),
-      React.createElement(F,{label:'Impact Level'},React.createElement(FSel,{value:fd.impactLevel,onChange:s('impactLevel'),options:['Critical','High','Medium','Low']})),
-      React.createElement(F,{label:'Advocate?'},React.createElement('div',{style:{display:'flex',alignItems:'center',gap:10,paddingTop:6}},React.createElement('input',{type:'checkbox',checked:!!fd.isAdvocate,onChange:e=>s('isAdvocate')(e.target.checked),style:{width:16,height:16,accentColor:A}}),React.createElement('span',{style:{fontSize:13,color:CR2}},'Includes change advocates'))),
-      React.createElement(F,{label:'Notes',full:true},React.createElement(FTxt,{value:fd.notes,onChange:s('notes'),placeholder:'Context, concerns, priorities'}))
-    )
-  );
+  btn?.addEventListener('click', attempt);
+  inp?.addEventListener('keydown', e => e.key==='Enter' && attempt());
 }
 
-function CEPlanModule({activities,setActivities,cias,setCias,stakeholders,setStakeholders,setToast}){
-  const E={title:'',description:'',ciaLink:'',audience:'',channel:'',owner:'',reviewer:'',status:'Not started',publishDate:'',impactLevel:'Medium'};
-  const[show,setShow]=useState(false);const[edit,setEdit]=useState(null);const[fd,setFd]=useState(E);const[sf,setSf]=useState('all');const[view,setView]=useState('activities');const[showAI,setShowAI]=useState(false);
-  const s=k=>v=>setFd(p=>({...p,[k]:v}));
-  const setAud=v=>{const sg=SUGGEST[v]||{};setFd(p=>({...p,audience:v,owner:sg.owner||'',channel:sg.channel||'',reviewer:sg.reviewer||''}));};
-  const filt=sf==='all'?activities:activities.filter(a=>a.status===sf);
-  const openAdd=()=>{setEdit(null);setFd(E);setShow(true);};const openEdit=i=>{setEdit(i);setFd({...i});setShow(true);};const close=()=>{setShow(false);setEdit(null);};
-  const submit=()=>{if(!fd.title)return alert('Title required.');edit?setActivities(p=>p.map(a=>a.id===edit.id?{...fd,id:edit.id}:a)):setActivities(p=>[...p,{...fd,id:nid(p,'A')}]);close();};
-  const del=id=>{if(window.confirm('Delete?'))setActivities(p=>p.filter(a=>a.id!==id));};
-  const doImp=()=>pickFile('.xlsx,.xls,.csv',f=>importXL(f,rows=>{const m=rows.filter(r=>getCol(r,['title','activity','name']));if(!m.length)return alert('No rows.');setActivities(p=>{const n=[...p,...m.map((r,i)=>({...mapAct(r),id:nid([...p,...m.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});setToast('✦ '+m.length+' rows imported');setTimeout(()=>setToast(''),3000);}));
-  const doExp=()=>exportXL(activities.map(a=>({'ID':a.id,'Title':a.title,'Description':a.description,'CIA Link':a.ciaLink,'Audience':a.audience,'Channel':a.channel,'Owner':a.owner,'Reviewer':a.reviewer,'Status':a.status,'Publish Date':a.publishDate,'Impact Level':a.impactLevel})),'CEPlan-'+Date.now()+'.xlsx');
-  const onAI=r=>{
-    if(r.activities?.length)setActivities(p=>{const n=[...p,...r.activities.map((x,i)=>({...x,id:nid([...p,...r.activities.slice(0,i)],'A')}))];persist(KEYS.act,n);return n;});
-    if(r.cia_entries?.length)setCias(p=>{const n=[...p,...r.cia_entries.map((x,i)=>({...x,id:nid([...p,...r.cia_entries.slice(0,i)],'CIA')}))];persist(KEYS.cia,n);return n;});
-    if(r.stakeholders?.length)setStakeholders(p=>{const n=[...p,...r.stakeholders.map((x,i)=>({...x,id:nid([...p,...r.stakeholders.slice(0,i)],'SH')}))];persist(KEYS.sh,n);return n;});
+function bindEvents() {
+  // Nav tabs
+  document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => setState({tab:b.dataset.tab})));
+
+  // Sign out
+  document.getElementById('sign-out-btn')?.addEventListener('click', () => { save(K.sess,false); setState({authed:false}); });
+
+  // ─ CIA ─
+  document.getElementById('cia-add')?.addEventListener('click', () => setState({ciaForm:true, ciaEdit:null}));
+  document.getElementById('cia-form-close')?.addEventListener('click', () => setState({ciaForm:false,ciaEdit:null}));
+  document.getElementById('cia-form-cancel')?.addEventListener('click', () => setState({ciaForm:false,ciaEdit:null}));
+  document.getElementById('cia-ai-toggle')?.addEventListener('click', () => setState({ciaShowAI:!state.ciaShowAI}));
+  document.getElementById('cia-export')?.addEventListener('click', () => exportXL(state.cias.map(c=>({'ID':c.id,'Process Area':c.processArea,'Sub-process':c.subProcess,'Description':c.description,'Change Type':c.changeType,'Affected Roles':c.affectedRoles,'Impact Level':c.impactLevel,'Benefits':c.benefits,'Fuel':c.fuel,'Friction':c.friction,'Status':c.status})), `CIA-${Date.now()}.xlsx`));
+  document.getElementById('cia-form-save')?.addEventListener('click', () => {
+    const pa = document.getElementById('cf-processArea')?.value;
+    const desc = document.getElementById('cf-description')?.value;
+    if (!pa || !desc) { showToast('Process area and description required', 'var(--rd)'); return; }
+    const d = {processArea:pa,subProcess:document.getElementById('cf-subProcess')?.value,description:desc,changeType:document.getElementById('cf-changeType')?.value,affectedRoles:document.getElementById('cf-affectedRoles')?.value,impactLevel:document.getElementById('cf-impactLevel')?.value,benefits:document.getElementById('cf-benefits')?.value,fuel:document.getElementById('cf-fuel')?.value,friction:document.getElementById('cf-friction')?.value,status:document.getElementById('cf-status')?.value};
+    if (state.ciaEdit) {
+      updateCias(state.cias.map(c=>c.id===state.ciaEdit.id?{...d,id:c.id}:c));
+    } else {
+      const newRow = {...d, id:nid(state.cias,'CIA')};
+      updateCias([...state.cias, newRow]);
+    }
+    setState({ciaForm:false,ciaEdit:null});
+    showToast('✦ CIA entry saved');
+  });
+  document.querySelectorAll('[data-cia-del]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); if(confirm('Delete this entry?')) { updateCias(state.cias.filter(c=>c.id!==b.dataset.ciaDel)); showToast('Deleted','var(--rd)'); } }));
+  document.querySelectorAll('[data-cia-edit]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const id=b.dataset.ciaEdit; setState({inlineEdit:state.inlineEdit?.id===id?null:{type:'cia',id}}); }));
+
+  // ─ SH ─
+  document.getElementById('sh-add')?.addEventListener('click', () => setState({shForm:true,shEdit:null}));
+  document.getElementById('sh-form-close')?.addEventListener('click', () => setState({shForm:false,shEdit:null}));
+  document.getElementById('sh-form-cancel')?.addEventListener('click', () => setState({shForm:false,shEdit:null}));
+  document.getElementById('sh-ai-toggle')?.addEventListener('click', () => setState({shShowAI:!state.shShowAI}));
+  document.getElementById('sh-export')?.addEventListener('click', () => exportXL(state.shs.map(s=>({'ID':s.id,'Name':s.name,'Job Title':s.jobTitle,'Persona':s.persona,'Site':s.site,'Population':s.population,'Readiness':s.readiness,'Sentiment':s.sentiment,'Influence':s.influence,'Impact Level':s.impactLevel,'Advocate':s.isAdvocate?'Yes':'No','Notes':s.notes})),`Stakeholders-${Date.now()}.xlsx`));
+  document.querySelectorAll('[data-pf]').forEach(b => b.addEventListener('click', () => setState({shPF:b.dataset.pf})));
+  document.querySelectorAll('[data-sh-del]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); if(confirm('Delete?')) { updateShs(state.shs.filter(s=>s.id!==b.dataset.shDel)); showToast('Deleted','var(--rd)'); } }));
+  document.querySelectorAll('[data-sh-edit]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const id=b.dataset.shEdit; setState({inlineEdit:state.inlineEdit?.id===id?null:{type:'sh',id}}); }));
+  document.getElementById('sh-form-save')?.addEventListener('click', () => {
+    const name = document.getElementById('sf-name')?.value;
+    if (!name) { showToast('Name required','var(--rd)'); return; }
+    const d = {name,jobTitle:document.getElementById('sf-jobTitle')?.value,persona:document.getElementById('sf-persona')?.value,site:document.getElementById('sf-site')?.value,population:parseInt(document.getElementById('sf-population')?.value)||1,readiness:parseInt(document.getElementById('sf-readiness')?.value)||3,sentiment:document.getElementById('sf-sentiment')?.value,influence:document.getElementById('sf-influence')?.value,impactLevel:document.getElementById('sf-impactLevel')?.value,isAdvocate:document.getElementById('sf-isAdvocate')?.value==='true',notes:document.getElementById('sf-notes')?.value};
+    if (state.shEdit) { updateShs(state.shs.map(s=>s.id===state.shEdit.id?{...d,id:s.id}:s)); }
+    else { updateShs([...state.shs,{...d,id:nid(state.shs,'SH')}]); }
+    setState({shForm:false,shEdit:null});
+    showToast('✦ Stakeholder saved');
+  });
+
+  // ─ ACTS ─
+  document.getElementById('act-add')?.addEventListener('click', () => setState({actForm:true,actEdit:null}));
+  document.getElementById('act-form-close')?.addEventListener('click', () => setState({actForm:false,actEdit:null}));
+  document.getElementById('act-form-cancel')?.addEventListener('click', () => setState({actForm:false,actEdit:null}));
+  document.getElementById('act-ai-toggle')?.addEventListener('click', () => setState({actShowAI:!state.actShowAI}));
+  document.getElementById('act-export')?.addEventListener('click', () => exportXL(state.acts.map(a=>({'ID':a.id,'Title':a.title,'Description':a.description,'CIA Link':a.ciaLink,'Audience':a.audience,'Channel':a.channel,'Owner':a.owner,'Reviewer':a.reviewer,'Status':a.status,'Date':a.publishDate,'Impact':a.impactLevel})),`CEPlan-${Date.now()}.xlsx`));
+  document.querySelectorAll('[data-sf]').forEach(b => b.addEventListener('click', () => setState({actSF:b.dataset.sf})));
+  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setState({actView:b.dataset.view})));
+  document.querySelectorAll('[data-act-del]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); if(confirm('Delete?')) { updateActs(state.acts.filter(a=>a.id!==b.dataset.actDel)); showToast('Deleted','var(--rd)'); } }));
+  document.querySelectorAll('[data-act-edit]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const id=b.dataset.actEdit; setState({inlineEdit:state.inlineEdit?.id===id?null:{type:'act',id}}); }));
+  document.getElementById('act-form-save')?.addEventListener('click', () => {
+    const title = document.getElementById('af-title')?.value;
+    if (!title) { showToast('Title required','var(--rd)'); return; }
+    const d = {title,description:document.getElementById('af-description')?.value,ciaLink:document.getElementById('af-ciaLink')?.value,audience:document.getElementById('af-audience')?.value,channel:document.getElementById('af-channel')?.value,owner:document.getElementById('af-owner')?.value,reviewer:document.getElementById('af-reviewer')?.value,status:document.getElementById('af-status')?.value,impactLevel:document.getElementById('af-impactLevel')?.value,publishDate:document.getElementById('af-publishDate')?.value};
+    if (state.actEdit) { updateActs(state.acts.map(a=>a.id===state.actEdit.id?{...d,id:a.id}:a)); }
+    else { updateActs([...state.acts,{...d,id:nid(state.acts,'A')}]); }
+    setState({actForm:false,actEdit:null});
+    showToast('✦ Activity saved');
+  });
+
+  // Auto-suggest for activity form
+  window._suggestAct = (v) => {
+    const sg = SUGGEST[v] || {};
+    const o = document.getElementById('af-owner');
+    const c = document.getElementById('af-channel');
+    const rv = document.getElementById('af-reviewer');
+    if (o && !o.dataset.manual) o.value = sg.owner || '';
+    if (c && !c.dataset.manual) c.value = sg.channel || '';
+    if (rv && !rv.dataset.manual) rv.value = sg.reviewer || '';
   };
-  const hP=useMemo(()=>[...new Set(stakeholders.map(sh=>sh.persona))],[stakeholders]);
-  const hS=useMemo(()=>[...new Set(stakeholders.map(sh=>sh.site))],[stakeholders]);
-  const hVal=(p,s)=>{const sh=stakeholders.find(x=>x.persona===p&&x.site===s);if(!sh)return 0;return Math.min(4,Math.round((parseInt(sh.population)||0)/12)+Math.round(activities.filter(a=>a.audience===p).length/2));};
-  const hBg=['rgba(237,232,223,0.04)','rgba(245,146,30,0.15)','rgba(245,146,30,0.33)','rgba(245,146,30,0.62)','#F5921E'];
-  const cOpts=[{value:'',label:'— None —'},...cias.map(c=>({value:c.id,label:c.id+' · '+c.processArea}))];
-  return React.createElement('div',null,
-    React.createElement(SectionHead,{title:'Communications & Engagement Plan',sub:'Plan, assign and track every change activity',onAdd:openAdd,onImport:doImp,onExport:doExp}),
-    React.createElement('div',{style:{marginBottom:16}},showAI?React.createElement(AIPanel,{onExtract:r=>{onAI(r);setShowAI(false);},setToast,inline:true}):React.createElement(Btn,{sm:true,ai:true,onClick:()=>setShowAI(true)},'✦ AI Extract from document')),
-    React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}},[['Total',activities.length,null],['Complete',activities.filter(a=>a.status==='Complete').length,GR],['In progress',activities.filter(a=>a.status==='In progress').length,A],['Not started',activities.filter(a=>a.status==='Not started').length,RD]].map(([l,v,c])=>React.createElement('div',{key:l,style:card},React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.1em',textTransform:'uppercase',color:CR3,marginBottom:8}},l),React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:28,fontWeight:500,color:c||CR,lineHeight:1}},v)))),
-    React.createElement('div',{style:{display:'flex',gap:4,background:N3,border:'1px solid '+BD,borderRadius:6,padding:4,width:'fit-content',marginBottom:20}},[['activities','Activities'],['heatmap','Impact Heatmap']].map(([v,l])=>React.createElement('button',{key:v,onClick:()=>setView(v),style:{padding:'6px 18px',borderRadius:4,border:'none',background:view===v?A:'transparent',color:view===v?N:CR2,fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:'Inter,sans-serif'}},l))),
-    view==='activities'&&React.createElement('div',null,
-      React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:16,flexWrap:'wrap'}},['all','Not started','In progress','Complete','On hold'].map(f=>React.createElement('button',{key:f,onClick:()=>setSf(f),style:{padding:'5px 13px',borderRadius:20,border:'1px solid '+(sf===f?A:BD2),background:sf===f?A:'transparent',color:sf===f?N:CR2,fontSize:11,cursor:'pointer',fontFamily:'Inter,sans-serif'}},f==='all'?'All':f)),React.createElement('span',{style:{marginLeft:'auto',fontFamily:'JetBrains Mono,monospace',fontSize:10,color:CR3}},filt.length+' shown')),
-      React.createElement('div',{style:{background:N2,border:'1px solid '+BD,borderRadius:6,overflowX:'auto'}},
-        React.createElement('table',{style:{width:'100%',borderCollapse:'collapse',minWidth:880}},
-          React.createElement('thead',null,React.createElement('tr',null,['#','Activity','Status','Audience','Channel','Owner','Impact','Date',''].map((h,i)=>React.createElement('th',{key:i,style:th},h)))),
-          React.createElement('tbody',null,
-            filt.map(a=>React.createElement('tr',{key:a.id,onClick:()=>openEdit(a),style:{cursor:'pointer'},onMouseEnter:e=>e.currentTarget.style.background='rgba(237,232,223,0.03)',onMouseLeave:e=>e.currentTarget.style.background=''},
-              React.createElement('td',{style:{...td,fontFamily:'JetBrains Mono,monospace',fontSize:10,color:CR3,width:72}},a.id),
-              React.createElement('td',{style:{...td,minWidth:180}},React.createElement('div',{style:{fontWeight:500,fontSize:12}},a.title),a.ciaLink&&React.createElement('div',{style:{fontSize:10,color:A,marginTop:2,fontFamily:'JetBrains Mono,monospace'}},'↳ '+a.ciaLink)),
-              React.createElement('td',{style:td},React.createElement(Pill,{v:a.status,map:ST_MAP})),
-              React.createElement('td',{style:{...td,fontSize:11,color:CR2}},a.audience),
-              React.createElement('td',{style:{...td,fontSize:11,color:CR2}},a.channel),
-              React.createElement('td',{style:{...td,fontSize:11,color:CR2}},a.owner),
-              React.createElement('td',{style:td},React.createElement(Pill,{v:a.impactLevel,map:IM_MAP})),
-              React.createElement('td',{style:{...td,fontFamily:'JetBrains Mono,monospace',fontSize:10,color:CR2}},a.publishDate||'—'),
-              React.createElement('td',{style:{...td,width:44}},React.createElement(DeleteX,{onClick:()=>del(a.id)}))
-            )),
-            !filt.length&&React.createElement('tr',null,React.createElement('td',{colSpan:9,style:{padding:48,textAlign:'center',color:CR3,fontFamily:'Fraunces,serif',fontSize:16,fontStyle:'italic'}},'No activities yet'))
-          )
-        )
-      )
-    ),
-    view==='heatmap'&&React.createElement('div',{style:{background:N2,border:'1px solid '+BD,borderRadius:6,padding:20,overflowX:'auto'}},
-      hP.length&&hS.length?React.createElement('div',null,
-        React.createElement('table',{style:{borderCollapse:'collapse',width:'100%'}},
-          React.createElement('thead',null,React.createElement('tr',null,React.createElement('th',{style:{...th,textAlign:'left',padding:'10px 16px',width:200}},'Persona / Site'),...hS.map(s=>React.createElement('th',{key:s,style:{...th,textAlign:'center',padding:'10px 8px'}},s)))),
-          React.createElement('tbody',null,...hP.map(p=>React.createElement('tr',{key:p},React.createElement('th',{style:{background:N3,textAlign:'left',padding:'11px 16px',color:CR,fontWeight:500,fontSize:12,fontFamily:'Inter,sans-serif',borderBottom:'1px solid '+BD,whiteSpace:'nowrap'}},p),...hS.map(s=>{const v=hVal(p,s);return React.createElement('td',{key:s,style:{height:44,textAlign:'center',fontFamily:'JetBrains Mono,monospace',fontSize:13,fontWeight:600,background:hBg[v],color:v===4?N:v>0?CR:CR3,border:'2px solid '+N}},v>0?['-','1','2','3','4+'][v]:'');}))))
-        ),
-        React.createElement('div',{style:{display:'flex',gap:14,marginTop:12,fontSize:11,color:CR2,flexWrap:'wrap',alignItems:'center'}},React.createElement('span',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.08em',textTransform:'uppercase',color:CR3}},'Intensity:'),...['N/A','Low','Medium','High','Critical'].map((l,i)=>React.createElement('span',{key:l,style:{display:'flex',alignItems:'center',gap:5}},React.createElement('span',{style:{width:12,height:12,background:hBg[i],borderRadius:2,display:'inline-block'}}),l)))
-      ):React.createElement('div',{style:{padding:48,textAlign:'center',color:CR3,fontFamily:'Fraunces,serif',fontSize:16,fontStyle:'italic'}},'Add stakeholders to generate the heatmap')
-    ),
-    show&&React.createElement(FormWrap,{title:edit?'Edit '+edit.id:'New activity',onClose:close,onSubmit:submit,submitLabel:edit?'Save':'Add to plan'},
-      React.createElement(F,{label:'Title',full:true},React.createElement(FInp,{value:fd.title,onChange:s('title'),placeholder:'e.g. AI Readiness Workshop'})),
-      React.createElement(F,{label:'Description',full:true},React.createElement(FTxt,{value:fd.description,onChange:s('description'),placeholder:'What does this achieve?'})),
-      React.createElement(F,{label:'Linked CIA'},React.createElement('select',{value:fd.ciaLink||'',onChange:e=>s('ciaLink')(e.target.value),style:{...inp,cursor:'pointer'}},cOpts.map(o=>React.createElement('option',{key:o.value,value:o.value},o.label)))),
-      React.createElement(F,{label:'Audience'},React.createElement('select',{value:fd.audience||'',onChange:e=>setAud(e.target.value),style:{...inp,cursor:'pointer'}},React.createElement('option',{value:''},'— Select —'),...Object.keys(SUGGEST).map(k=>React.createElement('option',{key:k,value:k},k)))),
-      React.createElement(F,{label:'Owner',auto:true},React.createElement(FInp,{value:fd.owner,onChange:s('owner'),auto:!!SUGGEST[fd.audience]})),
-      React.createElement(F,{label:'Channel',auto:true},React.createElement(FInp,{value:fd.channel,onChange:s('channel'),auto:!!SUGGEST[fd.audience]})),
-      React.createElement(F,{label:'Reviewer',auto:true},React.createElement(FInp,{value:fd.reviewer,onChange:s('reviewer'),auto:!!SUGGEST[fd.audience]})),
-      React.createElement(F,{label:'Status'},React.createElement(FSel,{value:fd.status,onChange:s('status'),options:['Not started','In progress','Complete','On hold']})),
-      React.createElement(F,{label:'Impact Level'},React.createElement(FSel,{value:fd.impactLevel,onChange:s('impactLevel'),options:['Critical','High','Medium','Low']})),
-      React.createElement(F,{label:'Publish Date'},React.createElement(FInp,{value:fd.publishDate,onChange:s('publishDate'),type:'date'}))
-    )
-  );
+
+  // ─ INLINE EDIT SAVE ─
+  document.querySelectorAll('[data-ie-save]').forEach(b => b.addEventListener('click', () => {
+    const type = b.dataset.ieSave;
+    const id = state.inlineEdit?.id;
+    if (!id) return;
+    const fields = {};
+    b.closest('td').querySelectorAll('[data-ie]').forEach(inp => {
+      fields[inp.dataset.ie] = inp.type==='checkbox'?inp.checked:inp.value;
+    });
+    if (type==='cia') { updateCias(state.cias.map(c=>c.id===id?{...c,...fields,population:fields.population?parseInt(fields.population):c.population}:c)); }
+    if (type==='sh') { updateShs(state.shs.map(s=>s.id===id?{...s,...fields,population:parseInt(fields.population)||s.population,readiness:parseInt(fields.readiness)||s.readiness,isAdvocate:fields.isAdvocate==='true'}:s)); }
+    if (type==='act') { updateActs(state.acts.map(a=>a.id===id?{...a,...fields}:a)); }
+    setState({inlineEdit:null});
+    showToast('✦ Saved');
+  }));
+  document.querySelectorAll('[data-ie-cancel]').forEach(b => b.addEventListener('click', () => setState({inlineEdit:null})));
+
+  // ─ AI CLOSE ─
+  document.querySelectorAll('[data-ai-close]').forEach(b => b.addEventListener('click', () => {
+    const m = b.dataset.aiClose;
+    if (m==='cia') setState({ciaShowAI:false});
+    if (m==='sh') setState({shShowAI:false});
+    if (m==='act') setState({actShowAI:false});
+  }));
+
+  // ─ AI INLINE EXTRACT ─
+  ['cia','sh','act'].forEach(module => {
+    const dropEl = document.getElementById(`inline-drop-${module}`);
+    const extractBtn = document.getElementById(`inline-extract-${module}`);
+    if (dropEl) {
+      dropEl.addEventListener('click', () => { const fi=document.createElement('input');fi.type='file';fi.accept='.txt,.docx,.xlsx,.xls,.csv';fi.onchange=async e=>{if(e.target.files[0]){const t=await readFile(e.target.files[0]);const ta=document.getElementById(`inline-ai-text-${module}`);if(ta)ta.value=t;}};fi.click(); });
+      dropEl.addEventListener('dragover', e => {e.preventDefault();dropEl.classList.add('over');});
+      dropEl.addEventListener('dragleave', () => dropEl.classList.remove('over'));
+      dropEl.addEventListener('drop', async e => { e.preventDefault();dropEl.classList.remove('over');const f=e.dataTransfer.files[0];if(f){const t=await readFile(f);const ta=document.getElementById(`inline-ai-text-${module}`);if(ta)ta.value=t;} });
+    }
+    if (extractBtn) {
+      extractBtn.addEventListener('click', async () => {
+        const ta = document.getElementById(`inline-ai-text-${module}`);
+        const text = ta?.value?.trim();
+        if (!text) { showToast('Please paste text or upload a file first','var(--rd)'); return; }
+        extractBtn.disabled = true;
+        extractBtn.innerHTML = '<div style="width:12px;height:12px;border:2px solid rgba(7,16,31,0.3);border-top-color:var(--n);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block"></div> Extracting…';
+        try {
+          const result = await callClaude(text, null);
+          applyAIResults(result, module);
+          if (module==='cia') setState({ciaShowAI:false});
+          if (module==='sh') setState({shShowAI:false});
+          if (module==='act') setState({actShowAI:false});
+        } catch(e) {
+          showToast('⚠ ' + e.message, 'var(--rd)');
+          extractBtn.disabled = false;
+          extractBtn.textContent = '✦ Extract with AI';
+        }
+      });
+    }
+  });
+
+  // ─ MAIN AI TAB ─
+  const aiTextEl = document.getElementById('ai-text');
+  aiTextEl?.addEventListener('input', () => { state.aiText = aiTextEl.value; });
+
+  const aiDrop = document.getElementById('ai-drop');
+  if (aiDrop) {
+    aiDrop.addEventListener('click', () => { const fi=document.createElement('input');fi.type='file';fi.accept='.txt,.docx,.xlsx,.xls,.csv';fi.onchange=async e=>{if(e.target.files[0]){const t=await readFile(e.target.files[0]);setState({aiText:t});}};fi.click(); });
+    aiDrop.addEventListener('dragover', e => { e.preventDefault(); setState({aiDrag:true}); });
+    aiDrop.addEventListener('dragleave', () => setState({aiDrag:false}));
+    aiDrop.addEventListener('drop', async e => { e.preventDefault(); setState({aiDrag:false}); const f=e.dataTransfer.files[0]; if(f){const t=await readFile(f);setState({aiText:t});} });
+  }
+
+  document.getElementById('ai-extract-btn')?.addEventListener('click', async () => {
+    const text = state.aiText.trim();
+    if (!text) return;
+    setState({aiLoading:true, aiProgress:5, aiResult:null});
+    try {
+      const result = await callClaude(text, p => setState({aiProgress:p}));
+      // auto-select all
+      const sel = {
+        cia: result.cia_entries?.map((_,i)=>i) || [],
+        sh: result.stakeholders?.map((_,i)=>i) || [],
+        act: result.activities?.map((_,i)=>i) || [],
+      };
+      setState({aiLoading:false, aiProgress:100, aiResult:result, aiSelected:sel});
+    } catch(e) {
+      setState({aiLoading:false, aiProgress:0});
+      showToast('⚠ ' + e.message, 'var(--rd)');
+    }
+  });
+
+  // AI result tabs
+  document.querySelectorAll('[data-ai-tab]').forEach(b => b.addEventListener('click', () => setState({aiTab:b.dataset.aiTab})));
+
+  // AI row selection
+  document.querySelectorAll('[data-ai-sel]').forEach(row => {
+    row.addEventListener('click', () => {
+      const type = row.dataset.aiSel;
+      const idx = parseInt(row.dataset.aiIdx);
+      const sel = {...state.aiSelected};
+      if (sel[type].includes(idx)) sel[type] = sel[type].filter(i=>i!==idx);
+      else sel[type] = [...sel[type], idx];
+      setState({aiSelected:sel});
+    });
+  });
+
+  // Select all
+  document.getElementById('ai-select-all')?.addEventListener('click', () => {
+    const r = state.aiResult;
+    if (!r) return;
+    setState({aiSelected:{
+      cia: r.cia_entries?.map((_,i)=>i)||[],
+      sh: r.stakeholders?.map((_,i)=>i)||[],
+      act: r.activities?.map((_,i)=>i)||[],
+    }});
+  });
+
+  // Clear results
+  document.getElementById('ai-clear')?.addEventListener('click', () => setState({aiResult:null,aiText:'',aiSelected:{cia:[],sh:[],act:[]}}));
+
+  // Add selected
+  document.getElementById('ai-add-selected')?.addEventListener('click', () => {
+    const r = state.aiResult;
+    const sel = state.aiSelected;
+    let added = [];
+    if (sel.cia.length) {
+      const rows = sel.cia.map((i,j) => ({...r.cia_entries[i], id:nid([...state.cias,...r.cia_entries.slice(0,j)],'CIA')}));
+      updateCias([...state.cias,...rows]);
+      added.push(`${rows.length} CIA entries`);
+    }
+    if (sel.sh.length) {
+      const rows = sel.sh.map((i,j) => ({...r.stakeholders[i], id:nid([...state.shs,...r.stakeholders.slice(0,j)],'SH')}));
+      updateShs([...state.shs,...rows]);
+      added.push(`${rows.length} stakeholders`);
+    }
+    if (sel.act.length) {
+      const rows = sel.act.map((i,j) => ({...r.activities[i], id:nid([...state.acts,...r.activities.slice(0,j)],'A')}));
+      updateActs([...state.acts,...rows]);
+      added.push(`${rows.length} activities`);
+    }
+    showToast(`✦ Added ${added.join(', ')} to your programme`);
+    setState({aiResult:null, aiText:'', aiSelected:{cia:[],sh:[],act:[]}});
+  });
 }
 
-function LoginScreen({onLogin}){
-  const[pass,setPass]=useState('');const[err,setErr]=useState('');const[loading,setLoading]=useState(false);
-  const attempt=()=>{setErr('');setLoading(true);setTimeout(()=>{if(pass.trim()===APP_PASSWORD){onLogin();}else{setErr('Incorrect password. Contact '+CONTACT_EMAIL+' for access.');setLoading(false);}},500);};
-  return React.createElement('div',{style:{background:N,minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',fontFamily:'Inter,sans-serif',padding:24}},
-    React.createElement('div',{style:{marginBottom:28,textAlign:'center'}},
-      React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:32,fontWeight:500,color:CR,letterSpacing:'-0.02em'}},'shift',React.createElement('span',{style:{color:A}},'.') ),
-      React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:10,letterSpacing:'0.12em',textTransform:'uppercase',color:CR3,marginTop:6}},'AI Change Accelerator · Studio'),
-      React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,color:CR3,marginTop:4,letterSpacing:'0.06em'}},SITE_URL)
-    ),
-    React.createElement('div',{style:{background:N2,border:'1px solid '+BD2,borderRadius:8,padding:32,width:'100%',maxWidth:360}},
-      React.createElement('div',{style:{fontSize:15,fontWeight:500,color:CR,marginBottom:6}},'Enter your access code'),
-      React.createElement('div',{style:{fontSize:12,color:CR2,marginBottom:20}},'Provided when you signed up · ',React.createElement('a',{href:'mailto:'+CONTACT_EMAIL,style:{color:A,textDecoration:'none'}},CONTACT_EMAIL)),
-      React.createElement('input',{type:'password',value:pass,onChange:e=>setPass(e.target.value),onKeyDown:e=>e.key==='Enter'&&attempt(),placeholder:'••••••••',style:{...inp,marginBottom:12,fontSize:16,letterSpacing:'0.1em'}}),
-      err&&React.createElement('div',{style:{fontSize:12,color:RD,background:'rgba(255,107,107,0.1)',border:'1px solid rgba(255,107,107,0.2)',borderRadius:3,padding:'8px 12px',marginBottom:12}},err),
-      React.createElement('button',{onClick:attempt,disabled:loading,style:{width:'100%',background:A,color:N,border:'none',padding:11,borderRadius:4,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif',opacity:loading?0.7:1}},loading?'Checking…':'Access workspace →')
-    )
-  );
+function applyAIResults(result, focus) {
+  let added = [];
+  if ((focus==='cia'||focus==='all') && result.cia_entries?.length) {
+    const rows = result.cia_entries.map((r,i)=>({...r,id:nid([...state.cias,...result.cia_entries.slice(0,i)],'CIA')}));
+    updateCias([...state.cias,...rows]);
+    added.push(`${rows.length} CIA entries`);
+  }
+  if ((focus==='sh'||focus==='all') && result.stakeholders?.length) {
+    const rows = result.stakeholders.map((r,i)=>({...r,id:nid([...state.shs,...result.stakeholders.slice(0,i)],'SH')}));
+    updateShs([...state.shs,...rows]);
+    added.push(`${rows.length} stakeholders`);
+  }
+  if ((focus==='act'||focus==='all') && result.activities?.length) {
+    const rows = result.activities.map((r,i)=>({...r,id:nid([...state.acts,...result.activities.slice(0,i)],'A')}));
+    updateActs([...state.acts,...rows]);
+    added.push(`${rows.length} activities`);
+  }
+  if (added.length) showToast(`✦ Added ${added.join(', ')} to your programme`);
+  else showToast('No data found in document — try with more content', 'var(--yl)');
 }
 
-function App(){
-  const[authed,setAuthed]=useState(false);const[tab,setTab]=useState('dashboard');
-  const[cias,setCias]=useState(null);const[stakeholders,setStakeholders]=useState(null);const[activities,setActivities]=useState(null);
-  const[saved,setSaved]=useState(true);const[toast,setToast]=useState('');const[toastColor,setToastColor]=useState(GR);
-  useEffect(()=>{setAuthed(load(KEYS.sess,false));setCias(load(KEYS.cia,S_CIA));setStakeholders(load(KEYS.sh,S_SH));setActivities(load(KEYS.act,S_ACT));},[]);
-  const showToast=(msg,color)=>{setToast(msg);setToastColor(color||GR);};
-  const save=(k,d)=>{setSaved(false);persist(k,d);setTimeout(()=>setSaved(true),400);};
-  const wCia=d=>{setCias(d);save(KEYS.cia,d);};const wSh=d=>{setStakeholders(d);save(KEYS.sh,d);};const wAct=d=>{setActivities(d);save(KEYS.act,d);};
-  const login=()=>{setAuthed(true);persist(KEYS.sess,true);};const logout=()=>{setAuthed(false);persist(KEYS.sess,false);};
-  if(cias===null)return React.createElement('div',{style:{background:N,minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:CR2,fontFamily:'JetBrains Mono,monospace',fontSize:12}},'Loading…');
-  if(!authed)return React.createElement(LoginScreen,{onLogin:login});
-  const TABS=[['dashboard','Dashboard'],['ai','❖ AI Extract'],['cia','Change Impact'],['stakeholders','Stakeholders'],['ceplan','C&E Plan']];
-  return React.createElement('div',{style:{background:N,minHeight:'100vh',color:CR,fontFamily:'Inter,sans-serif',fontSize:14}},
-    React.createElement('div',{style:{background:N2,borderBottom:'1px solid '+BD,padding:'0 24px',display:'flex',alignItems:'center',justifyContent:'space-between',height:52,position:'sticky',top:0,zIndex:10}},
-      React.createElement('div',{style:{display:'flex',alignItems:'center',gap:16}},
-        React.createElement('div',{style:{fontFamily:'Fraunces,serif',fontSize:18,fontWeight:500,letterSpacing:'-0.02em'}},'shift',React.createElement('span',{style:{color:A}},'.') ),
-        React.createElement('div',{style:{fontSize:11,color:CR3,fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.04em'}},PROGRAMME_NAME),
-        React.createElement('div',{style:{display:'flex',gap:2}},TABS.map(([id,label])=>React.createElement('button',{key:id,onClick:()=>setTab(id),style:{padding:'5px 13px',borderRadius:3,border:'none',background:tab===id?(id==='ai'?PU:A):'transparent',color:tab===id?N:id==='ai'?PU:CR2,fontSize:12,fontWeight:tab===id?600:400,cursor:'pointer',fontFamily:'Inter,sans-serif'}},label)))
-      ),
-      React.createElement('div',{style:{display:'flex',alignItems:'center',gap:16}},
-        React.createElement('div',{style:{fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.06em',color:saved?CR3:A}},saved?'❖ Saved':'❖ Saving…'),
-        React.createElement('div',{style:{fontSize:10,color:A,background:AB,padding:'2px 8px',borderRadius:2,fontFamily:'JetBrains Mono,monospace',letterSpacing:'0.06em'}},'Studio'),
-        React.createElement('button',{onClick:logout,style:{background:'transparent',border:'1px solid '+BD,color:CR2,padding:'4px 12px',borderRadius:3,fontSize:11,cursor:'pointer',fontFamily:'Inter,sans-serif'}},'Sign out')
-      )
-    ),
-    React.createElement('div',{style:{padding:'24px 24px 60px'}},
-      tab==='dashboard'&&React.createElement(Dashboard,{cias,stakeholders,activities}),
-      tab==='ai'&&React.createElement(AITab,{cias,setCias:wCia,stakeholders,setStakeholders:wSh,activities,setActivities:wAct,setToast:showToast}),
-      tab==='cia'&&React.createElement(CIAModule,{cias,setCias:wCia,stakeholders,setStakeholders:wSh,activities,setActivities:wAct,setToast:showToast}),
-      tab==='stakeholders'&&React.createElement(StakeholderModule,{stakeholders,setStakeholders:wSh,cias,setCias:wCia,activities,setActivities:wAct,setToast:showToast}),
-      tab==='ceplan'&&React.createElement(CEPlanModule,{activities,setActivities:wAct,cias,setCias:wCia,stakeholders,setStakeholders:wSh,setToast:showToast})
-    ),
-    React.createElement(Toast,{msg:toast,color:toastColor})
-  );
-}
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+// ── INIT ──────────────────────────────────────────────────────────────────
+state.authed = load(K.sess, false);
+render();
 </script>
 </body>
 </html>
